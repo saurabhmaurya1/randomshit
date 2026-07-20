@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reality Check 🎂</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Level Up Day! 🚀✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
-            --primary: #6c5ce7; /* Party Purple */
-            --secondary: #00cec9; /* Mint Blue */
-            --bg-gradient: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            --accent-pink: #ff2a75;
+            --accent-cyan: #00f2fe;
+            --accent-yellow: #f82200;
+            --card-bg: rgba(18, 18, 28, 0.75);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
         }
 
         body {
@@ -20,268 +26,332 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: var(--bg-gradient);
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden; 
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: #09090e;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            color: #fff;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* Dynamic Animated Background Gradients */
+        .bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,42,117,0.35) 0%, rgba(0,0,0,0) 70%);
+            top: 10%;
+            left: 15%;
+            filter: blur(50px);
+            animation: floatGlow 12s infinite alternate ease-in-out;
+            z-index: 1;
         }
 
-        /* Glassmorphism Card */
+        .bg-glow-2 {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(0,242,254,0.3) 0%, rgba(0,0,0,0) 70%);
+            bottom: 10%;
+            right: 15%;
+            filter: blur(50px);
+            animation: floatGlow 10s infinite alternate-reverse ease-in-out;
+            z-index: 1;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 40px) scale(1.2); }
+        }
+
+        /* Glass Card */
         .card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 24px;
+            position: relative;
+            z-index: 10;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
             padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(255, 42, 117, 0.15);
             max-width: 90%;
-            width: 400px;
-            z-index: 10;
-            transition: all 0.5s ease;
+            width: 420px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(255, 42, 117, 0.4);
         }
 
         h1 {
-            color: #2d3436;
-            font-size: 2rem;
-            margin-top: 0;
-            margin-bottom: 25px;
-            font-weight: 800;
+            font-size: 2.1rem;
+            font-weight: 900;
+            margin: 0 0 20px 0;
+            line-height: 1.2;
+            background: linear-gradient(180deg, #ffffff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .gif-container {
-            height: 220px;
-            margin-bottom: 30px;
+        .media-box {
+            height: 200px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
-        img {
+        .media-box img {
             max-height: 100%;
             max-width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
-        .buttons {
+        .interactive-zone {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            position: relative; 
+            gap: 15px;
             min-height: 60px;
+            position: relative;
         }
 
         button {
-            padding: 14px 20px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            padding: 16px 24px;
+            border-radius: 14px;
             border: none;
-            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        #yesBtn {
-            background-color: var(--primary);
+        #actionBtn {
+            background: linear-gradient(135deg, var(--accent-pink) 0%, #d63031 100%);
             color: white;
             z-index: 2;
         }
 
-        #yesBtn:hover {
+        #actionBtn:hover {
             transform: scale(1.05);
-            background-color: #5f27cd;
+            box-shadow: 0 0 25px rgba(255, 42, 117, 0.6);
         }
 
-        #noBtn {
-            background-color: #ff7675;
-            color: white;
-            position: relative; 
-            z-index: 1;
+        #evadeBtn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #d1d5db;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 100;
+            transition: top 0.2s ease, left 0.2s ease, transform 0.2s;
         }
 
-        /* Shake animation */
-        .shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        /* Float/Pulse Effects */
+        .pulse {
+            animation: pulseGlow 1.5s infinite alternate;
         }
 
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(0, 242, 254, 0.8); }
         }
 
-        .success-text {
-            color: #2d3436;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-top: 20px;
-            animation: fadeIn 1s ease;
+        .wobble {
+            animation: wobble 0.5s ease-in-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes wobble {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px) rotate(-3deg); }
+            75% { transform: translateX(8px) rotate(3deg); }
+        }
+
+        .subtext {
+            color: #9ca3af;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+
     <div class="card" id="card">
-        <h1 id="question">Are you officially ancient today? 🎂</h1>
+        <div class="level-badge" id="badge">STAGE 1: VERIFICATION</div>
+        <h1 id="title">Claim your official Birthday Gift! 🎁</h1>
         
-        <div class="gif-container">
-            <img id="gif" src="https://media.giphy.com/media/ANbD1CCdA3iI8/giphy.gif" alt="Suspicious">
+        <div class="media-box">
+            <img id="displayImg" src="https://media.giphy.com/media/3o7527pa7qs9kCG78A/giphy.gif" alt="Waiting">
         </div>
 
-        <div class="buttons" id="buttonContainer">
-            <button id="yesBtn">Fine, I'm old 🧓</button>
-            <button id="noBtn">No, I'm forever 21! 🛑</button>
+        <div class="interactive-zone" id="btnContainer">
+            <button id="actionBtn">CLAIM GIFT 🎁</button>
+            <button id="evadeBtn">Not Today ✋</button>
         </div>
     </div>
 
     <script>
-        const yesBtn = document.getElementById('yesBtn');
-        const noBtn = document.getElementById('noBtn');
-        const gif = document.getElementById('gif');
-        const question = document.getElementById('question');
         const card = document.getElementById('card');
+        const badge = document.getElementById('badge');
+        const title = document.getElementById('title');
+        const displayImg = document.getElementById('displayImg');
+        const actionBtn = document.getElementById('actionBtn');
+        const evadeBtn = document.getElementById('evadeBtn');
 
-        let noClickCount = 0;
+        let attempts = 0;
         let isEvading = false;
 
-        // The roast messages!
-        const roastTrips = [
-            "No, I'm forever 21! 🛑",
-            "Denial is cute. 🙄",
-            "Your back literally hurts right now. 🦴",
-            "Did you take your vitamins today? 💊",
-            "You used to have a MySpace. Stop lying. 💻",
-            "I can hear your knees clicking from here 🔊",
-            "Just accept it, grandpa/grandma! 🏃💨"
+        const evadeLabels = [
+            "Not Today ✋",
+            "Too Slow! ⚡",
+            "Missed Me! 😜",
+            "Nice Try 🏃‍♂️",
+            "Catch Me! 🚀",
+            "Almost! 💨",
+            "Okay Stop! 😂"
         ];
 
-        // Funny GIFs as they keep denying their age
-        const teaseGifs = [
-            "https://media.giphy.com/media/1Qdp4trljSkY8/giphy.gif", // Laughing
-            "https://media.giphy.com/media/l0IyajjbNiRvCr7RC/giphy.gif", // Grandma
-            "https://media.giphy.com/media/jp313yHGzTDBbw5Tg6/giphy.gif"  // Laughing pointing
+        const reactionGifs = [
+            "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif", // Cheeky
+            "https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", // Running away
+            "https://media.giphy.com/media/d1E1msx7Yw5Ne1Fe/giphy.gif"  // Laughing
         ];
 
-        function evadeCursor() {
+        // Move the "Evade" button away when targeted
+        function dodgeButton() {
             if (!isEvading) return;
+
+            evadeBtn.style.position = 'fixed';
             
-            noBtn.style.position = 'fixed';
-            
-            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
-            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
-            
-            const randomX = Math.max(20, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(20, Math.floor(Math.random() * maxY));
-            
-            noBtn.style.left = randomX + 'px';
-            noBtn.style.top = randomY + 'px';
+            // Keep button within screen bounds
+            const padding = 30;
+            const maxX = window.innerWidth - evadeBtn.offsetWidth - padding;
+            const maxY = window.innerHeight - evadeBtn.offsetHeight - padding;
+
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+            evadeBtn.style.left = randomX + 'px';
+            evadeBtn.style.top = randomY + 'px';
         }
 
-        // Handle the NO button logic
-        function handleNoClick(e) {
-            e.preventDefault(); 
-            noClickCount++;
+        // Handle clicking the evasive button
+        function handleEvade() {
+            attempts++;
+            card.classList.remove('wobble');
+            void card.offsetWidth; // Trigger reflow for animation
+            card.classList.add('wobble');
 
-            // Shake the card
-            card.classList.remove('shake');
-            void card.offsetWidth; 
-            card.classList.add('shake');
-
-            // Change text to roast them
-            if (noClickCount < roastTrips.length) {
-                noBtn.innerText = roastTrips[noClickCount];
+            if (attempts < evadeLabels.length) {
+                evadeBtn.innerText = evadeLabels[attempts];
             }
 
-            // Cycle through tease GIFs
-            if (noClickCount === 2) gif.src = teaseGifs[0];
-            if (noClickCount === 4) gif.src = teaseGifs[1];
+            if (attempts === 2) {
+                displayImg.src = reactionGifs[0];
+                badge.innerText = "STAGE 2: REFLEX TEST";
+            }
 
-            // Make YES button bigger
-            const currentScale = 1 + (noClickCount * 0.15);
-            yesBtn.style.transform = `scale(${currentScale})`;
+            if (attempts === 4) {
+                displayImg.src = reactionGifs[1];
+            }
 
-            // Activate "Evasion Mode" after 5 tries
-            if (noClickCount >= 5) {
+            // Scale up the main action button
+            const scaleFactor = 1 + (attempts * 0.12);
+            actionBtn.style.transform = `scale(${scaleFactor})`;
+
+            // Enable full evasive mode after 3 clicks
+            if (attempts >= 3) {
                 isEvading = true;
-                gif.src = teaseGifs[2];
-                noBtn.innerText = "Can't catch youth! 🏃💨";
-                evadeCursor();
+                dodgeButton();
+            }
+
+            // Surrender after 7 attempts
+            if (attempts >= 7) {
+                isEvading = false;
+                evadeBtn.style.position = 'relative';
+                evadeBtn.style.left = 'auto';
+                evadeBtn.style.top = 'auto';
+                evadeBtn.innerText = "Fine, You Win! 🏆";
+                displayImg.src = reactionGifs[2];
+                badge.innerText = "FINAL STAGE: VICTORY";
             }
         }
 
-        noBtn.addEventListener('click', handleNoClick);
-        noBtn.addEventListener('mouseover', () => {
-            if (isEvading) evadeCursor();
+        // Event Listeners for Evade Button
+        evadeBtn.addEventListener('click', handleEvade);
+        evadeBtn.addEventListener('mouseover', () => {
+            if (isEvading) dodgeButton();
         });
-        noBtn.addEventListener('touchstart', (e) => {
+        evadeBtn.addEventListener('touchstart', (e) => {
             if (isEvading) {
                 e.preventDefault();
-                evadeCursor();
+                dodgeButton();
             }
         }, {passive: false});
 
+        // Handle Main Victory Click
+        actionBtn.addEventListener('click', () => {
+            // Explosive Confetti Sequence
+            const duration = 3.5 * 1000;
+            const animationEnd = Date.now() + duration;
 
-        // Handle the YES button logic (The real birthday wish!)
-        yesBtn.addEventListener('click', () => {
-            
-            // Massive Multi-colored Confetti explosion
-            var duration = 4 * 1000;
-            var end = Date.now() + duration;
+            (function launchConfetti() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return;
 
-            (function frame() {
                 confetti({
-                    particleCount: 8,
+                    particleCount: 7,
                     angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#6c5ce7', '#00cec9', '#fd79a8', '#ffeaa7', '#00b894']
+                    spread: 60,
+                    origin: { x: 0, y: 0.7 },
+                    colors: ['#ff2a75', '#00f2fe', '#ffd700', '#ffffff']
                 });
                 confetti({
-                    particleCount: 8,
+                    particleCount: 7,
                     angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#6c5ce7', '#00cec9', '#fd79a8', '#ffeaa7', '#00b894']
+                    spread: 60,
+                    origin: { x: 1, y: 0.7 },
+                    colors: ['#ff2a75', '#00f2fe', '#ffd700', '#ffffff']
                 });
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            }());
+                requestAnimationFrame(launchConfetti);
+            })();
 
-            // Update UI to the sweet Birthday Wish
+            // Transform Card to Birthday Wish
             card.innerHTML = `
-                <h1 style="color: #6c5ce7; font-size: 2.5rem;">HAPPY BIRTHDAY! 🎉</h1>
-                <div class="gif-container" style="height: 250px;">
-                    <img src="https://media.giphy.com/media/LZwCGX8fPTscI/giphy.gif" alt="Party!">
+                <div class="level-badge" style="background: linear-gradient(90deg, #ffd700, #ff2a75);">LEVEL UP UNLOCKED 🚀</div>
+                <h1 style="font-size: 2.4rem; margin-top: 10px;">HAPPY BIRTHDAY! 🎉</h1>
+                <div class="media-box" style="height: 220px;">
+                    <img src="https://media.giphy.com/media/g5R9eccVG520w/giphy.gif" alt="Celebration!">
                 </div>
-                <div class="success-text">
-                    Just kidding! You're aging like fine wine. 🍷<br><br>
-                    Hope you have the absolute best day ever! Let's celebrate! 🥳🎁
+                <div class="subtext">
+                    You officially survived another trip around the sun! ☀️<br><br>
+                    May your year ahead be packed with zero bugs, endless wins, and good vibes only! 🔥 ✨
                 </div>
             `;
-            
-            // Change background to a festive yellow/orange vibe
-            document.body.style.background = "linear-gradient(135deg, #f6d365 0%, #fda085 100%)";
-            document.body.style.animation = "none";
+
+            // Elevate Card Style
+            card.style.borderColor = "rgba(0, 242, 254, 0.5)";
+            card.style.boxShadow = "0 0 50px rgba(0, 242, 254, 0.3)";
         });
     </script>
 </body>
