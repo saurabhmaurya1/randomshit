@@ -11,58 +11,63 @@
         :root {
             --accent-pink: #ff2a75;
             --accent-cyan: #00f2fe;
-            --accent-yellow: #f82200;
+            --accent-gold: #ffd700;
             --card-bg: rgba(18, 18, 28, 0.75);
         }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: #09090e;
+            font-family: 'Outfit', sans-serif;
+            color: #fff;
+            overflow: hidden;
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #09090e;
-            font-family: 'Outfit', sans-serif;
-            overflow: hidden;
-            color: #fff;
+            position: relative;
         }
 
-        /* Dynamic Animated Background Gradients */
-        .bg-glow {
+        .bg-glow, .bg-glow-2 {
             position: absolute;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(255,42,117,0.35) 0%, rgba(0,0,0,0) 70%);
-            top: 10%;
-            left: 15%;
+            border-radius: 50%;
             filter: blur(50px);
-            animation: floatGlow 12s infinite alternate ease-in-out;
             z-index: 1;
+            pointer-events: none;
         }
+        .bg-glow { background: radial-gradient(circle, rgba(255,42,117,0.35) 0%, rgba(0,0,0,0) 70%); top: 10%; left: 15%; animation: floatGlow 12s infinite alternate ease-in-out; }
+        .bg-glow-2 { background: radial-gradient(circle, rgba(0,242,254,0.3) 0%, rgba(0,0,0,0) 70%); bottom: 10%; right: 15%; animation: floatGlow 10s infinite alternate-reverse ease-in-out; }
+        @keyframes floatGlow { 0% { transform: translate(0,0) scale(1);} 100% { transform: translate(60px,40px) scale(1.2);} }
 
-        .bg-glow-2 {
-            position: absolute;
-            width: 450px;
-            height: 450px;
-            background: radial-gradient(circle, rgba(0,242,254,0.3) 0%, rgba(0,0,0,0) 70%);
-            bottom: 10%;
-            right: 15%;
-            filter: blur(50px);
-            animation: floatGlow 10s infinite alternate-reverse ease-in-out;
-            z-index: 1;
+        /* Floating score/progress pill */
+        .progress-pill {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
         }
+        .progress-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); transition: background 0.4s, box-shadow 0.4s; align-self: center; }
+        .progress-pill .dot.active { background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
 
-        @keyframes floatGlow {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(60px, 40px) scale(1.2); }
-        }
-
-        /* Glass Card */
         .card {
             position: relative;
             z-index: 10;
@@ -73,11 +78,10 @@
             border-radius: 28px;
             padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
-                        0 0 40px rgba(255, 42, 117, 0.15);
-            max-width: 90%;
-            width: 420px;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 42, 117, 0.15);
+            max-width: 92%;
+            width: 440px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
         }
 
         .level-badge {
@@ -85,7 +89,7 @@
             background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
             padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 800;
             letter-spacing: 1.5px;
             text-transform: uppercase;
@@ -93,41 +97,58 @@
             box-shadow: 0 4px 15px rgba(255, 42, 117, 0.4);
         }
 
-        h1 {
-            font-size: 2.1rem;
-            font-weight: 900;
-            margin: 0 0 20px 0;
-            line-height: 1.2;
-            background: linear-gradient(180deg, #ffffff 0%, #d1d5db 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        h1 { font-size: 1.9rem; font-weight: 900; margin: 0 0 8px 0; line-height: 1.2;
+             background: linear-gradient(180deg, #ffffff 0%, #d1d5db 100%);
+             -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .media-box {
-            height: 200px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .subtext { color: #9ca3af; font-size: 1rem; line-height: 1.6; margin: 10px 0 20px; min-height: 24px; }
+
+        /* ---- Stage 1: Balloon pop game ---- */
+        .game-box {
             position: relative;
-        }
-
-        .media-box img {
-            max-height: 100%;
-            max-width: 100%;
+            height: 230px;
+            margin-bottom: 20px;
             border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .balloon {
+            position: absolute;
+            bottom: -60px;
+            width: 46px;
+            height: 58px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            cursor: pointer;
+            animation: floatUp linear forwards;
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+        }
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 16px;
+            background: rgba(255,255,255,0.35);
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-320px) rotate(8deg); }
+        }
+        .game-hint { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); pointer-events: none; }
+        .score-tag {
+            position: absolute; top: 10px; right: 12px;
+            font-size: 0.85rem; font-weight: 800;
+            background: rgba(0,0,0,0.4); padding: 4px 12px; border-radius: 12px;
         }
 
-        .interactive-zone {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            min-height: 60px;
-            position: relative;
-        }
+        /* ---- Stage 2: gift media box ---- */
+        .media-box { height: 200px; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .media-box img { max-height: 100%; max-width: 100%; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+        .interactive-zone { display: flex; justify-content: center; align-items: center; gap: 15px; min-height: 60px; position: relative; }
 
         button {
             font-family: 'Outfit', sans-serif;
@@ -142,17 +163,9 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        #actionBtn {
-            background: linear-gradient(135deg, var(--accent-pink) 0%, #d63031 100%);
-            color: white;
-            z-index: 2;
-        }
-
-        #actionBtn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(255, 42, 117, 0.6);
-        }
+        #actionBtn { background: linear-gradient(135deg, var(--accent-pink) 0%, #d63031 100%); color: white; z-index: 2; }
+        #actionBtn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 42, 117, 0.6); }
+        #actionBtn:disabled { opacity: 0.35; cursor: not-allowed; }
 
         #evadeBtn {
             background: rgba(255, 255, 255, 0.1);
@@ -162,32 +175,37 @@
             transition: top 0.2s ease, left 0.2s ease, transform 0.2s;
         }
 
-        /* Float/Pulse Effects */
-        .pulse {
-            animation: pulseGlow 1.5s infinite alternate;
-        }
+        .pulse { animation: pulseGlow 1.5s infinite alternate; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);} 100% { box-shadow: 0 0 30px rgba(0, 242, 254, 0.8);} }
 
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
-            100% { box-shadow: 0 0 30px rgba(0, 242, 254, 0.8); }
-        }
+        .wobble { animation: wobble 0.5s ease-in-out; }
+        @keyframes wobble { 0%,100% { transform: translateX(0);} 25% { transform: translateX(-8px) rotate(-3deg);} 75% { transform: translateX(8px) rotate(3deg);} }
 
-        .wobble {
-            animation: wobble 0.5s ease-in-out;
-        }
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%,100% { transform: translate(0,0);} 20% { transform: translate(-4px,2px);} 40% { transform: translate(4px,-2px);} 60% { transform: translate(-3px,3px);} 80% { transform: translate(3px,-3px);} }
 
-        @keyframes wobble {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px) rotate(-3deg); }
-            75% { transform: translateX(8px) rotate(3deg); }
-        }
+        .typewriter { overflow: hidden; white-space: pre-wrap; border-right: 2px solid var(--accent-cyan); }
 
-        .subtext {
-            color: #9ca3af;
-            font-size: 1.05rem;
-            line-height: 1.6;
-            margin-top: 15px;
+        /* click sparkle trail */
+        .sparkle {
+            position: fixed;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            animation: sparkleFade 0.6s ease-out forwards;
         }
+        @keyframes sparkleFade { to { transform: translateY(-30px) scale(0); opacity: 0; } }
+
+        .replay-btn {
+            margin-top: 18px;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            font-size: 0.85rem;
+            padding: 12px 20px;
+        }
+        .replay-btn:hover { background: rgba(255,255,255,0.16); }
     </style>
 </head>
 <body>
@@ -195,17 +213,25 @@
     <div class="bg-glow"></div>
     <div class="bg-glow-2"></div>
 
+    <div class="progress-pill" id="progressPill">
+        <span class="dot active" data-step="1"></span>
+        <span class="dot" data-step="2"></span>
+        <span class="dot" data-step="3"></span>
+    </div>
+
     <div class="card" id="card">
-        <div class="level-badge" id="badge">STAGE 1: VERIFICATION</div>
-        <h1 id="title">Claim your official Birthday Gift! 🎁</h1>
-        
-        <div class="media-box">
-            <img id="displayImg" src="https://media.giphy.com/media/3o7527pa7qs9kCG78A/giphy.gif" alt="Waiting">
+        <div class="level-badge" id="badge">STAGE 1: POP THE BALLOONS</div>
+        <h1 id="title">Pop 5 balloons to unlock your gift! 🎈</h1>
+        <p class="subtext" id="subtext">Tap the balloons as they float up — quick, before they escape!</p>
+
+        <div class="game-box" id="gameBox">
+            <div class="score-tag">🎈 <span id="popCount">0</span> / 5</div>
+            <div class="game-hint">tap the balloons!</div>
         </div>
 
         <div class="interactive-zone" id="btnContainer">
-            <button id="actionBtn">CLAIM GIFT 🎁</button>
-            <button id="evadeBtn">Not Today ✋</button>
+            <button id="actionBtn" disabled>CLAIM GIFT 🎁</button>
+            <button id="evadeBtn">Not Yet ✋</button>
         </div>
     </div>
 
@@ -213,145 +239,225 @@
         const card = document.getElementById('card');
         const badge = document.getElementById('badge');
         const title = document.getElementById('title');
-        const displayImg = document.getElementById('displayImg');
+        const subtext = document.getElementById('subtext');
+        const gameBox = document.getElementById('gameBox');
+        const popCountEl = document.getElementById('popCount');
         const actionBtn = document.getElementById('actionBtn');
         const evadeBtn = document.getElementById('evadeBtn');
+        const dots = document.querySelectorAll('.progress-pill .dot');
 
+        const balloonColors = ['#ff2a75', '#00f2fe', '#ffd700', '#7cffcb', '#c084fc'];
+        let popped = 0;
+        let balloonTimer = null;
+        let gameActive = true;
+
+        // ---------- tiny sound engine (no external audio files) ----------
+        let audioCtx;
+        function beep(freq, duration, type = 'sine', gain = 0.05) {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                g.gain.value = gain;
+                osc.connect(g);
+                g.connect(audioCtx.destination);
+                osc.start();
+                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) { /* audio not available, ignore */ }
+        }
+        const popSound = () => beep(500 + Math.random() * 300, 0.15, 'triangle', 0.06);
+        const winSound = () => { beep(523, 0.12); setTimeout(() => beep(659, 0.12), 120); setTimeout(() => beep(784, 0.2), 240); };
+        const dodgeSound = () => beep(220, 0.08, 'square', 0.03);
+
+        function setActiveDot(step) {
+            dots.forEach(d => d.classList.toggle('active', Number(d.dataset.step) <= step));
+        }
+
+        // ---------- sparkle trail on any click ----------
+        document.addEventListener('click', (e) => {
+            for (let i = 0; i < 4; i++) {
+                const s = document.createElement('div');
+                s.className = 'sparkle';
+                s.style.left = (e.clientX + (Math.random() * 16 - 8)) + 'px';
+                s.style.top = (e.clientY + (Math.random() * 16 - 8)) + 'px';
+                s.style.background = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 650);
+            }
+        });
+
+        // ---------- Stage 1: balloon pop game ----------
+        function spawnBalloon() {
+            if (!gameActive) return;
+            const b = document.createElement('div');
+            b.className = 'balloon';
+            const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+            b.style.background = `radial-gradient(circle at 35% 30%, ${color}dd, ${color})`;
+            b.style.left = Math.random() * (gameBox.clientWidth - 50) + 'px';
+            const dur = 3.2 + Math.random() * 1.6;
+            b.style.animationDuration = dur + 's';
+            gameBox.appendChild(b);
+
+            b.addEventListener('click', () => popBalloon(b), { once: true });
+            setTimeout(() => { if (b.parentNode) b.remove(); }, dur * 1000 + 50);
+        }
+
+        function popBalloon(b) {
+            if (!gameActive) return;
+            popSound();
+            confetti({
+                particleCount: 14,
+                spread: 50,
+                startVelocity: 22,
+                gravity: 1.1,
+                origin: {
+                    x: (b.getBoundingClientRect().left + 20) / window.innerWidth,
+                    y: (b.getBoundingClientRect().top + 20) / window.innerHeight
+                },
+                colors: balloonColors
+            });
+            b.remove();
+            popped++;
+            popCountEl.textContent = popped;
+
+            if (popped >= 5) {
+                gameActive = false;
+                clearInterval(balloonTimer);
+                document.querySelectorAll('.balloon').forEach(x => x.remove());
+                advanceToStage2();
+            }
+        }
+
+        function advanceToStage2() {
+            setActiveDot(2);
+            badge.textContent = 'STAGE 2: SPEED TEST';
+            title.textContent = 'Now catch me if you can! 😏';
+            subtext.textContent = 'Tap "Claim Gift" — but "Not Yet" is quick on its feet.';
+            gameBox.outerHTML = `
+                <div class="media-box">
+                    <img id="displayImg" src="https://media.giphy.com/media/3o7527pa7qs9kCG78A/giphy.gif" alt="Waiting">
+                </div>`;
+            actionBtn.disabled = false;
+            actionBtn.classList.add('pulse');
+        }
+
+        balloonTimer = setInterval(spawnBalloon, 550);
+        spawnBalloon();
+
+        // ---------- Stage 2: evasive button gag ----------
         let attempts = 0;
         let isEvading = false;
 
-        const evadeLabels = [
-            "Not Today ✋",
-            "Too Slow! ⚡",
-            "Missed Me! 😜",
-            "Nice Try 🏃‍♂️",
-            "Catch Me! 🚀",
-            "Almost! 💨",
-            "Okay Stop! 😂"
-        ];
-
+        const evadeLabels = ["Not Yet ✋", "Too Slow! ⚡", "Missed Me! 😜", "Nice Try 🏃‍♂️", "Catch Me! 🚀", "Almost! 💨", "Okay Stop! 😂"];
         const reactionGifs = [
-            "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif", // Cheeky
-            "https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif", // Running away
-            "https://media.giphy.com/media/d1E1msx7Yw5Ne1Fe/giphy.gif"  // Laughing
+            "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif",
+            "https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif",
+            "https://media.giphy.com/media/d1E1msx7Yw5Ne1Fe/giphy.gif"
         ];
 
-        // Move the "Evade" button away when targeted
         function dodgeButton() {
             if (!isEvading) return;
-
             evadeBtn.style.position = 'fixed';
-            
-            // Keep button within screen bounds
             const padding = 30;
             const maxX = window.innerWidth - evadeBtn.offsetWidth - padding;
             const maxY = window.innerHeight - evadeBtn.offsetHeight - padding;
-
             const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
             const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
-
             evadeBtn.style.left = randomX + 'px';
             evadeBtn.style.top = randomY + 'px';
         }
 
-        // Handle clicking the evasive button
         function handleEvade() {
+            if (gameActive) return; // ignore during stage 1
             attempts++;
+            dodgeSound();
             card.classList.remove('wobble');
-            void card.offsetWidth; // Trigger reflow for animation
+            void card.offsetWidth;
             card.classList.add('wobble');
 
-            if (attempts < evadeLabels.length) {
-                evadeBtn.innerText = evadeLabels[attempts];
-            }
+            if (attempts < evadeLabels.length) evadeBtn.innerText = evadeLabels[attempts];
 
-            if (attempts === 2) {
-                displayImg.src = reactionGifs[0];
-                badge.innerText = "STAGE 2: REFLEX TEST";
-            }
+            const displayImg = document.getElementById('displayImg');
+            if (attempts === 2 && displayImg) { displayImg.src = reactionGifs[0]; badge.innerText = 'STAGE 2: REFLEX TEST'; }
+            if (attempts === 4 && displayImg) { displayImg.src = reactionGifs[1]; }
 
-            if (attempts === 4) {
-                displayImg.src = reactionGifs[1];
-            }
-
-            // Scale up the main action button
             const scaleFactor = 1 + (attempts * 0.12);
             actionBtn.style.transform = `scale(${scaleFactor})`;
 
-            // Enable full evasive mode after 3 clicks
-            if (attempts >= 3) {
-                isEvading = true;
-                dodgeButton();
-            }
+            if (attempts >= 3) { isEvading = true; dodgeButton(); }
 
-            // Surrender after 7 attempts
             if (attempts >= 7) {
                 isEvading = false;
                 evadeBtn.style.position = 'relative';
                 evadeBtn.style.left = 'auto';
                 evadeBtn.style.top = 'auto';
-                evadeBtn.innerText = "Fine, You Win! 🏆";
-                displayImg.src = reactionGifs[2];
-                badge.innerText = "FINAL STAGE: VICTORY";
+                evadeBtn.innerText = 'Fine, You Win! 🏆';
+                if (displayImg) displayImg.src = reactionGifs[2];
+                badge.innerText = 'FINAL STAGE: VICTORY';
+                subtext.textContent = 'One click left. No more running.';
             }
         }
 
-        // Event Listeners for Evade Button
         evadeBtn.addEventListener('click', handleEvade);
-        evadeBtn.addEventListener('mouseover', () => {
-            if (isEvading) dodgeButton();
-        });
-        evadeBtn.addEventListener('touchstart', (e) => {
-            if (isEvading) {
-                e.preventDefault();
-                dodgeButton();
-            }
-        }, {passive: false});
+        evadeBtn.addEventListener('mouseover', () => { if (isEvading) dodgeButton(); });
+        evadeBtn.addEventListener('touchstart', (e) => { if (isEvading) { e.preventDefault(); dodgeButton(); } }, { passive: false });
 
-        // Handle Main Victory Click
+        // ---------- Stage 3: the big reveal ----------
+        function typewrite(el, text, speed = 28) {
+            el.textContent = '';
+            let i = 0;
+            const iv = setInterval(() => {
+                el.textContent += text[i];
+                i++;
+                if (i >= text.length) { clearInterval(iv); el.style.borderRight = 'none'; }
+            }, speed);
+        }
+
         actionBtn.addEventListener('click', () => {
-            // Explosive Confetti Sequence
-            const duration = 3.5 * 1000;
+            if (gameActive) return;
+            winSound();
+            setActiveDot(3);
+
+            const duration = 4 * 1000;
             const animationEnd = Date.now() + duration;
+            const colors = ['#ff2a75', '#00f2fe', '#ffd700', '#ffffff'];
 
             (function launchConfetti() {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return;
-
-                confetti({
-                    particleCount: 7,
-                    angle: 60,
-                    spread: 60,
-                    origin: { x: 0, y: 0.7 },
-                    colors: ['#ff2a75', '#00f2fe', '#ffd700', '#ffffff']
-                });
-                confetti({
-                    particleCount: 7,
-                    angle: 120,
-                    spread: 60,
-                    origin: { x: 1, y: 0.7 },
-                    colors: ['#ff2a75', '#00f2fe', '#ffd700', '#ffffff']
-                });
-
+                confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.7 }, colors });
+                confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.7 }, colors });
                 requestAnimationFrame(launchConfetti);
             })();
 
-            // Transform Card to Birthday Wish
+            // one big firework burst on top
+            setTimeout(() => {
+                confetti({ particleCount: 120, spread: 100, startVelocity: 45, origin: { x: 0.5, y: 0.4 }, colors });
+            }, 300);
+
             card.innerHTML = `
                 <div class="level-badge" style="background: linear-gradient(90deg, #ffd700, #ff2a75);">LEVEL UP UNLOCKED 🚀</div>
                 <h1 style="font-size: 2.4rem; margin-top: 10px;">HAPPY BIRTHDAY! 🎉</h1>
                 <div class="media-box" style="height: 220px;">
                     <img src="https://media.giphy.com/media/g5R9eccVG520w/giphy.gif" alt="Celebration!">
                 </div>
-                <div class="subtext">
-                    You officially survived another trip around the sun! ☀️<br><br>
-                    May your year ahead be packed with zero bugs, endless wins, and good vibes only! 🔥 ✨
-                </div>
+                <div class="subtext typewriter" id="finalMsg"></div>
+                <button class="replay-btn" id="replayBtn">Play Again 🔄</button>
             `;
+            card.style.borderColor = 'rgba(0, 242, 254, 0.5)';
+            card.style.boxShadow = '0 0 50px rgba(0, 242, 254, 0.3)';
+            card.classList.add('shake');
 
-            // Elevate Card Style
-            card.style.borderColor = "rgba(0, 242, 254, 0.5)";
-            card.style.boxShadow = "0 0 50px rgba(0, 242, 254, 0.3)";
+            typewrite(
+                document.getElementById('finalMsg'),
+                'You officially survived another trip around the sun! ☀️\n\nMay your year ahead be packed with zero bugs, endless wins, and good vibes only! 🔥✨',
+                22
+            );
+
+            document.getElementById('replayBtn').addEventListener('click', () => location.reload());
         });
     </script>
 </body>
