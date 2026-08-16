@@ -1,949 +1,556 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Birthday Quest 2.0 🎮</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will you go on a date with me?</title>
 
-<style>
-:root {
-  --pink: #ff2a75;
-  --cyan: #00f2fe;
-  --gold: #ffd700;
-  --green: #7cffcb;
-  --purple: #c084fc;
-  --card-bg: rgba(18, 18, 28, 0.78);
-  --line: rgba(255, 255, 255, 0.12);
-}
+  <!-- Display + UI type. Falls back to system serif / sans if the CDN is blocked. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
-* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+  <style>
+    /* ---------- Design tokens ---------- */
+    :root {
+      /* palette */
+      --bg-top:      #fdeef2;
+      --bg-bottom:   #f3e6f6;
+      --card:        #ffffff;
+      --ink:         #6e2a3c;   /* burgundy display ink */
+      --ink-soft:    #8a5563;   /* muted body text     */
+      --rose:        #e07a9c;
+      --rose-deep:   #cf5f85;
+      --lavender:    #b9a8e0;
+      --lavender-ink:#4a3a6b;
+      --magenta:     #d6006e;
+      --magenta-deep:#b00159;
+      --line:        #f0dbe4;
+      --focus:       #7a3ce0;
 
-html, body {
-  margin: 0; height: 100%;
-  background: #09090e;
-  font-family: 'Outfit', sans-serif;
-  color: #fff;
-  overflow: hidden;
-}
+      /* type */
+      --display: "Playfair Display", Georgia, "Times New Roman", serif;
+      --ui: "Nunito", ui-rounded, "Segoe UI", system-ui, sans-serif;
 
-body {
-  min-height: 100vh;
-  display: flex; justify-content: center; align-items: center;
-  position: relative;
-}
+      /* form */
+      --radius-card: 26px;
+      --radius-pill: 999px;
+      --radius-input: 14px;
+      --shadow-card: 0 24px 60px -20px rgba(110, 42, 60, 0.28);
+      --shadow-pill: 0 10px 22px -8px rgba(207, 95, 133, 0.6);
+    }
 
-/* ---------- ambient background ---------- */
-.bg-glow, .bg-glow-2 {
-  position: absolute; width: 500px; height: 500px; border-radius: 50%;
-  filter: blur(50px); z-index: 1; pointer-events: none;
-}
-.bg-glow   { background: radial-gradient(circle, rgba(255,42,117,.35), transparent 70%); top: 8%;  left: 12%; animation: floatGlow 12s infinite alternate ease-in-out; }
-.bg-glow-2 { background: radial-gradient(circle, rgba(0,242,254,.30), transparent 70%); bottom: 8%; right: 12%; animation: floatGlow 10s infinite alternate-reverse ease-in-out; }
-@keyframes floatGlow { to { transform: translate(60px, 40px) scale(1.2); } }
+    /* ---------- Reset / base ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
 
-/* ---------- HUD ---------- */
-#hud {
-  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
-  z-index: 60; width: min(440px, 92%);
-  display: flex; align-items: center; gap: 12px;
-  background: rgba(0,0,0,.45);
-  border: 1px solid var(--line);
-  padding: 10px 16px; border-radius: 20px;
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  opacity: 0; transition: opacity .5s;
-}
-#hud.visible { opacity: 1; }
-#hudLevel {
-  font-weight: 900; font-size: .8rem; letter-spacing: 1.5px; white-space: nowrap;
-  background: linear-gradient(90deg, var(--gold), var(--pink));
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  cursor: pointer;
-}
-.xp-track { flex: 1; height: 10px; border-radius: 6px; background: rgba(255,255,255,.1); overflow: hidden; }
-#xpFill {
-  height: 100%; width: 0%;
-  background: linear-gradient(90deg, var(--cyan), var(--green));
-  border-radius: 6px;
-  box-shadow: 0 0 12px rgba(0,242,254,.7);
-  transition: width .45s cubic-bezier(.34,1.56,.64,1);
-}
-#hudXp { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: #9ca3af; white-space: nowrap; }
+    html, body { height: 100%; }
 
-/* ---------- card ---------- */
-.card {
-  position: relative; z-index: 10;
-  background: var(--card-bg);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  padding: 36px 28px;
-  text-align: center;
-  box-shadow: 0 30px 60px rgba(0,0,0,.5), 0 0 40px rgba(255,42,117,.15);
-  width: min(460px, 94vw);
-  max-height: 86vh;
-  overflow-y: auto;
-  transition: box-shadow .4s, border-color .4s;
-}
+    body {
+      margin: 0;
+      font-family: var(--ui);
+      color: var(--ink-soft);
+      background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      background-attachment: fixed;
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
 
-.level-badge {
-  display: inline-block;
-  background: linear-gradient(90deg, var(--pink), var(--cyan));
-  padding: 6px 16px; border-radius: 20px;
-  font-size: .78rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
-  margin-bottom: 14px;
-  box-shadow: 0 4px 15px rgba(255,42,117,.4);
-}
+    /* soft floating petals in the background */
+    .petal {
+      position: fixed;
+      font-size: 20px;
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
+      animation: drift 14s ease-in-out infinite;
+      z-index: 0;
+    }
+    @keyframes drift {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-18px) rotate(12deg); }
+    }
 
-h1 {
-  font-size: 1.8rem; font-weight: 900; margin: 0 0 8px; line-height: 1.2;
-  background: linear-gradient(180deg, #fff, #d1d5db);
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-}
+    /* ---------- Card + screens ---------- */
+    .stage {
+      position: relative;
+      z-index: 1;
+      width: min(560px, 100%);
+    }
 
-.subtext { color: #9ca3af; font-size: .98rem; line-height: 1.55; margin: 8px 0 18px; min-height: 24px; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      padding: 40px 36px;
+      text-align: center;
+    }
 
-button {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem; font-weight: 800;
-  padding: 15px 24px; border-radius: 14px; border: none; cursor: pointer;
-  transition: transform .25s cubic-bezier(.175,.885,.32,1.275), box-shadow .25s, background .25s;
-  box-shadow: 0 8px 20px rgba(0,0,0,.3);
-  text-transform: uppercase; letter-spacing: .5px;
-}
-.btn-primary { background: linear-gradient(135deg, var(--pink), #d63031); color: #fff; }
-.btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,42,117,.6); }
-.btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; }
-.btn-ghost { background: rgba(255,255,255,.08); color: #e5e7eb; border: 1px solid rgba(255,255,255,.22); }
-.btn-ghost:hover { background: rgba(255,255,255,.16); }
+    .screen { display: none; }
+    .screen.is-active {
+      display: block;
+      animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-.pulse { animation: pulseGlow 1.4s infinite alternate; }
-@keyframes pulseGlow { from { box-shadow: 0 0 15px rgba(0,242,254,.3); } to { box-shadow: 0 0 30px rgba(0,242,254,.8); } }
+    /* ---------- Typography ---------- */
+    h1 {
+      font-family: var(--display);
+      color: var(--ink);
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 18px 0 6px;
+      font-size: clamp(1.6rem, 5vw, 2.15rem);
+    }
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 0.98rem;
+      color: var(--ink-soft);
+    }
+    .blurb {
+      margin: 12px auto 0;
+      max-width: 40ch;
+      line-height: 1.55;
+      color: var(--ink-soft);
+    }
 
-.wobble { animation: wobble .5s ease-in-out; }
-@keyframes wobble { 25% { transform: translateX(-8px) rotate(-2deg); } 75% { transform: translateX(8px) rotate(2deg); } }
+    /* avatar chip at the top of a screen */
+    .avatar {
+      width: 116px;
+      height: 116px;
+      margin: 0 auto;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      font-size: 60px;
+      background: linear-gradient(150deg, #ffe1ec, #efe0fb);
+      box-shadow: inset 0 0 0 1px rgba(110, 42, 60, 0.06);
+    }
+    .glyph {
+      font-size: 34px;
+      line-height: 1;
+    }
 
-.shake { animation: shake .4s ease-in-out; }
-@keyframes shake {
-  20% { transform: translate(-4px, 2px); } 40% { transform: translate(4px, -2px); }
-  60% { transform: translate(-3px, 3px); } 80% { transform: translate(3px, -3px); }
-}
+    /* ---------- Buttons ---------- */
+    .btn {
+      font-family: var(--ui);
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      border-radius: var(--radius-pill);
+      padding: 15px 34px;
+      font-size: 1.05rem;
+      color: #fff;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .btn:hover { filter: brightness(1.04); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0) scale(0.98); }
 
-/* ---------- boot / terminal ---------- */
-.terminal {
-  font-family: 'JetBrains Mono', monospace;
-  text-align: left; font-size: .82rem; line-height: 1.8;
-  background: rgba(0,0,0,.55);
-  border: 1px solid rgba(0,242,254,.25);
-  border-radius: 14px;
-  padding: 18px; min-height: 190px;
-  color: var(--green);
-  white-space: pre-wrap; word-break: break-word;
-  margin-bottom: 18px;
-}
-.terminal .cursor { display: inline-block; width: 8px; height: 15px; background: var(--green); vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
-@keyframes blink { 50% { opacity: 0; } }
+    .btn-yes {
+      background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+      box-shadow: var(--shadow-pill);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #f3aac1, var(--rose-deep));
+      box-shadow: var(--shadow-pill);
+      width: 100%;
+      margin-top: 22px;
+    }
+    .btn-pay {
+      background: linear-gradient(135deg, var(--magenta), var(--magenta-deep));
+      box-shadow: 0 12px 26px -8px rgba(176, 1, 89, 0.65);
+      width: 100%;
+      margin-top: 22px;
+      font-size: 1.1rem;
+    }
 
-/* ---------- balloon arena ---------- */
-.arena {
-  position: relative; height: 240px; margin-bottom: 18px;
-  border-radius: 18px; overflow: hidden;
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-  border: 1px solid rgba(255,255,255,.08);
-}
-.balloon {
-  position: absolute; bottom: -70px;
-  width: 46px; height: 58px;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  cursor: pointer;
-  animation: floatUp linear forwards;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
-}
-.balloon::after {
-  content: ''; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
-  width: 2px; height: 16px; background: rgba(255,255,255,.35);
-}
-@keyframes floatUp { to { transform: translateY(-340px) rotate(8deg); } }
-.arena-hint { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: .74rem; color: rgba(255,255,255,.4); pointer-events: none; }
-.arena-tag {
-  position: absolute; top: 10px; right: 12px; z-index: 5;
-  font-size: .85rem; font-weight: 800;
-  background: rgba(0,0,0,.45); padding: 4px 12px; border-radius: 12px;
-}
+    /* the runaway "no" button */
+    .btn-no {
+      background: linear-gradient(135deg, #c9b8ec, var(--lavender));
+      color: var(--lavender-ink);
+      box-shadow: 0 8px 18px -8px rgba(74, 58, 107, 0.5);
+      z-index: 20;
+    }
+    .btn-no.is-loose { position: fixed; }
 
-/* floating +XP text */
-.xp-float {
-  position: fixed; z-index: 999; pointer-events: none;
-  font-weight: 900; font-size: 1rem; color: var(--gold);
-  text-shadow: 0 0 12px rgba(255,215,0,.8);
-  animation: xpRise .9s ease-out forwards;
-}
-@keyframes xpRise { to { transform: translateY(-60px) scale(1.25); opacity: 0; } }
+    .choice-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
+      margin-top: 26px;
+      min-height: 60px; /* keep layout stable once "no" flies away */
+      flex-wrap: wrap;
+    }
 
-/* ---------- level-up overlay ---------- */
-#levelUpOverlay {
-  position: fixed; inset: 0; z-index: 200;
-  display: none; justify-content: center; align-items: center; flex-direction: column;
-  background: rgba(5,5,10,.82); backdrop-filter: blur(6px);
-}
-#levelUpOverlay.show { display: flex; }
-.levelup-text {
-  font-size: clamp(2.6rem, 10vw, 4.5rem); font-weight: 900; letter-spacing: 2px;
-  background: linear-gradient(90deg, var(--gold), var(--pink), var(--cyan));
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: levelPop .8s cubic-bezier(.175,.885,.32,1.6);
-  text-align: center;
-}
-.levelup-sub { color: var(--gold); font-weight: 800; font-size: 1.4rem; margin-top: 8px; animation: levelPop 1s cubic-bezier(.175,.885,.32,1.6); }
-@keyframes levelPop { from { transform: scale(.2) rotate(-6deg); opacity: 0; } }
+    .textlink {
+      display: inline-block;
+      margin-top: 16px;
+      background: none;
+      border: none;
+      color: var(--ink-soft);
+      font-family: var(--ui);
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .textlink:hover { color: var(--ink); }
 
-/* ---------- boss battle ---------- */
-.boss-hp-wrap { margin-bottom: 12px; text-align: left; }
-.boss-hp-label { font-size: .74rem; font-weight: 800; letter-spacing: 1px; color: var(--pink); margin-bottom: 5px; }
-.boss-hp-track { height: 14px; border-radius: 8px; background: rgba(255,255,255,.1); overflow: hidden; border: 1px solid rgba(255,42,117,.3); }
-#bossHpFill {
-  height: 100%; width: 100%;
-  background: linear-gradient(90deg, #ff2a75, #ff6b6b);
-  box-shadow: 0 0 14px rgba(255,42,117,.8);
-  transition: width .35s cubic-bezier(.34,1.56,.64,1);
-}
-#bossEmoji {
-  position: absolute; font-size: 52px; cursor: pointer; z-index: 5;
-  transition: top .3s cubic-bezier(.34,1.56,.64,1), left .3s cubic-bezier(.34,1.56,.64,1), transform .15s;
-  filter: drop-shadow(0 0 14px rgba(192,132,252,.8));
-}
-#bossEmoji:active { transform: scale(.75); }
-.boss-hit-flash { animation: bossFlash .25s; }
-@keyframes bossFlash { 50% { filter: drop-shadow(0 0 30px #fff) brightness(3); } }
+    /* ---------- Form (screen 2) ---------- */
+    .field { text-align: left; margin-top: 20px; }
+    .field label {
+      display: block;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      font-family: var(--ui);
+      font-size: 1rem;
+      color: var(--ink);
+      padding: 14px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-input);
+      background: #fff;
+    }
+    .field input:focus,
+    .field select:focus {
+      outline: 3px solid color-mix(in srgb, var(--focus) 35%, transparent);
+      border-color: var(--rose);
+    }
+    .hint {
+      margin: 12px 0 0;
+      min-height: 1.2em;
+      color: var(--rose-deep);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
 
-/* ---------- evade stage ---------- */
-.stage-scene { font-size: 84px; margin: 6px 0 14px; line-height: 1; animation: sceneBob 2.4s ease-in-out infinite; }
-@keyframes sceneBob { 50% { transform: translateY(-8px); } }
-.interactive-zone { display: flex; justify-content: center; align-items: center; gap: 15px; min-height: 64px; flex-wrap: wrap; }
-#evadeBtn { z-index: 300; transition: top .2s ease, left .2s ease, transform .25s, background .25s, font-size .25s; }
+    /* ---------- Food grid (screen 3) ---------- */
+    .food-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .food {
+      border: 2px solid var(--line);
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px 8px 14px;
+      cursor: pointer;
+      font-family: var(--ui);
+      transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .food:hover { transform: translateY(-3px); box-shadow: 0 12px 22px -14px rgba(110,42,60,0.4); }
+    .food:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 40%, transparent); }
+    .food .emoji { font-size: 34px; display: block; }
+    .food .name { display: block; margin-top: 8px; font-weight: 700; color: var(--ink); }
+    .food[aria-pressed="true"] {
+      border-color: var(--rose-deep);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--rose) 25%, transparent);
+    }
 
-/* ---------- countdown ---------- */
-#countNum {
-  font-size: 6.5rem; font-weight: 900; line-height: 1.1; margin: 14px 0;
-  background: linear-gradient(180deg, var(--cyan), var(--purple));
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: countPunch .9s cubic-bezier(.175,.885,.32,1.5);
-}
-@keyframes countPunch { from { transform: scale(2.4); opacity: 0; } }
+    /* ---------- Payment box (screen 4) ---------- */
+    .agreement {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-top: 24px;
+    }
+    .agreement .terms { font-family: var(--display); font-weight: 700; color: var(--ink); font-size: 1.1rem; }
+    .agreement .terms small { display: block; font-family: var(--ui); font-weight: 600; color: var(--ink-soft); font-size: 0.78rem; margin-top: 4px; }
+    .agreement .price { font-family: var(--display); font-weight: 800; color: var(--magenta); font-size: 1.9rem; white-space: nowrap; }
 
-/* ---------- gift boxes ---------- */
-.gift-row { display: flex; justify-content: center; gap: 18px; margin: 18px 0 8px; }
-.gift {
-  font-size: 68px; cursor: pointer; line-height: 1;
-  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
-}
-.gift:hover { animation: giftWiggle .5s ease-in-out infinite; }
-@keyframes giftWiggle { 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
-.gift.jump { animation: giftJump .55s cubic-bezier(.34,1.56,.64,1); }
-@keyframes giftJump { 40% { transform: translateY(-42px) scale(1.15); } }
-.gift.faded { opacity: .18; pointer-events: none; transform: scale(.85); }
+    /* the gotcha payoff */
+    .payoff h1 { margin-top: 10px; }
+    .payoff .summary {
+      margin: 18px auto 0;
+      max-width: 34ch;
+      line-height: 1.6;
+      color: var(--ink-soft);
+    }
+    .payoff .summary strong { color: var(--ink); }
 
-/* ---------- reveal ---------- */
-.cake { font-size: 96px; line-height: 1.1; margin: 6px 0; animation: cakeIn 1s cubic-bezier(.175,.885,.32,1.5); }
-@keyframes cakeIn { from { transform: scale(0) rotate(-30deg); opacity: 0; } }
-.typewriter { border-right: 2px solid var(--cyan); }
+    /* ---------- Footer ---------- */
+    .foot {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: color-mix(in srgb, var(--ink-soft) 70%, transparent);
+      position: relative;
+      z-index: 1;
+    }
 
-/* falling hearts / rainbow emojis */
-.fall-emoji {
-  position: fixed; top: -50px; z-index: 998; pointer-events: none;
-  animation: fallDown linear forwards;
-}
-@keyframes fallDown { to { transform: translateY(115vh) rotate(340deg); } }
+    /* ---------- Accessibility: reduced motion ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
 
-/* ---------- achievements ---------- */
-.ach-list { text-align: left; margin: 12px 0; }
-.ach-item {
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid var(--line);
-  border-radius: 12px; padding: 10px 14px; margin-bottom: 8px;
-  font-weight: 600; font-size: .92rem;
-  opacity: 0; transform: translateX(-16px);
-  animation: achIn .45s cubic-bezier(.34,1.56,.64,1) forwards;
-}
-.ach-item .ach-icon { font-size: 1.2rem; }
-@keyframes achIn { to { opacity: 1; transform: none; } }
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
-.stat-box {
-  background: rgba(0,0,0,.35); border: 1px solid var(--line);
-  border-radius: 12px; padding: 10px;
-}
-.stat-box .stat-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.15rem; color: var(--cyan); }
-.stat-box .stat-key { font-size: .7rem; letter-spacing: 1px; text-transform: uppercase; color: #9ca3af; margin-top: 2px; }
-.score-banner {
-  font-size: 1.5rem; font-weight: 900; margin: 6px 0;
-  color: var(--gold); text-shadow: 0 0 18px rgba(255,215,0,.6);
-}
-
-/* ---------- sparkles ---------- */
-.sparkle {
-  position: fixed; width: 6px; height: 6px; border-radius: 50%;
-  pointer-events: none; z-index: 999;
-  animation: sparkleFade .6s ease-out forwards;
-}
-@keyframes sparkleFade { to { transform: translateY(-30px) scale(0); opacity: 0; } }
-
-/* ---------- rainbow easter egg ---------- */
-body.rainbow { animation: hueSpin 3s linear infinite; }
-@keyframes hueSpin { to { filter: hue-rotate(360deg); } }
-
-/* ---------- accessibility ---------- */
-button:focus-visible, .gift:focus-visible, #bossEmoji:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) {
-  /* .balloon is excluded: its float animation IS the gameplay */
-  *:not(.balloon), *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-}
-</style>
+    @media (max-width: 420px) {
+      .card { padding: 30px 22px; }
+      .food-grid { gap: 10px; }
+      .food .emoji { font-size: 28px; }
+    }
+  </style>
 </head>
 <body>
+  <!-- ambient petals -->
+  <span class="petal" style="top:12%; left:8%;  animation-delay:0s;">🌸</span>
+  <span class="petal" style="top:70%; left:14%; animation-delay:2s;">🌷</span>
+  <span class="petal" style="top:22%; right:10%; animation-delay:1s;">🌺</span>
+  <span class="petal" style="top:78%; right:12%; animation-delay:3s;">💗</span>
 
-<div class="bg-glow"></div>
-<div class="bg-glow-2"></div>
+  <main class="stage">
+    <div class="card">
 
-<!-- HUD -->
-<div id="hud" aria-live="polite">
-  <span id="hudLevel" title="psst… try clicking me a few times">LVL <span id="levelNum">1</span></span>
-  <div class="xp-track"><div id="xpFill"></div></div>
-  <span id="hudXp">0 XP</span>
-</div>
+      <!-- SCREEN 1 — the ask -->
+      <section class="screen is-active" data-screen="ask" aria-label="The question">
+        <div class="avatar" aria-hidden="true">🐶</div>
+        <h1>🌸 Will you go on a date with me? 🌸</h1>
+        <div class="choice-row">
+          <button type="button" class="btn btn-yes" data-yes>Yes ♥</button>
+          <button type="button" class="btn btn-no" data-no>no 🐾</button>
+        </div>
+      </section>
 
-<!-- Level up overlay -->
-<div id="levelUpOverlay">
-  <div class="levelup-text">LEVEL UP!</div>
-  <div class="levelup-sub">+50 XP ⭐</div>
-</div>
+      <!-- SCREEN 2 — scheduling -->
+      <section class="screen" data-screen="when" aria-label="Pick a date and time">
+        <div class="glyph" aria-hidden="true">📅🐾</div>
+        <h1>So... when are you free?</h1>
 
-<div class="card" id="card"></div>
+        <div class="field">
+          <label for="day">Pick a day 📅</label>
+          <input type="date" id="day" />
+        </div>
 
-<script>
-'use strict';
+        <div class="field">
+          <label for="time">What time? ⏰</label>
+          <select id="time">
+            <option value="" selected disabled>Select a time…</option>
+            <option value="Brunch 🥐 (11 AM)">Brunch 🥐 (11 AM)</option>
+            <option value="Coffee ☕ (2 PM)">Coffee ☕ (2 PM)</option>
+            <option value="Golden hour 🌇 (5 PM)">Golden hour 🌇 (5 PM)</option>
+            <option value="Dinner 🍷 (7 PM)">Dinner 🍷 (7 PM)</option>
+            <option value="Late night 🌙 (10 PM)">Late night 🌙 (10 PM)</option>
+          </select>
+        </div>
 
-/* =====================================================
-   Birthday Quest 2.0 — single-file mini game
-   Stage flow: boot → balloons → boss → evade →
-               decrypt → countdown → gifts → reveal → achievements
-   ===================================================== */
+        <p class="hint" data-when-hint aria-live="polite"></p>
+        <button type="button" class="btn btn-primary" data-set-date>set the date! ♥</button>
+      </section>
 
-(function () {
+      <!-- SCREEN 3 — food vibe -->
+      <section class="screen" data-screen="food" aria-label="Pick a food">
+        <h1>What are we feeling? 🍽️✨</h1>
+        <p class="subtitle">pick your vibe</p>
 
-  // ---------- safe confetti wrapper (CDN may be blocked) ----------
-  const burst = (opts) => { if (typeof confetti === 'function') { try { confetti(opts); } catch (e) { /* noop */ } } };
+        <div class="food-grid" role="group" aria-label="Food options">
+          <button type="button" class="food" data-food="Pizza 🍕"><span class="emoji">🍕</span><span class="name">Pizza</span></button>
+          <button type="button" class="food" data-food="Sushi 🍣"><span class="emoji">🍣</span><span class="name">Sushi</span></button>
+          <button type="button" class="food" data-food="Burgers 🍔"><span class="emoji">🍔</span><span class="name">Burgers</span></button>
+          <button type="button" class="food" data-food="Pasta 🍝"><span class="emoji">🍝</span><span class="name">Pasta</span></button>
+          <button type="button" class="food" data-food="Tacos 🌮"><span class="emoji">🌮</span><span class="name">Tacos</span></button>
+          <button type="button" class="food" data-food="Ramen 🍜"><span class="emoji">🍜</span><span class="name">Ramen</span></button>
+        </div>
 
-  // ---------- tiny sound engine ----------
-  let audioCtx = null;
-  function ensureAudio() {
-    if (!audioCtx) {
-      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* noop */ }
-    }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-  }
-  function beep(freq, duration, type = 'sine', gain = 0.05, delayMs = 0) {
-    if (!audioCtx) return;
-    setTimeout(() => {
-      try {
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.type = type; osc.frequency.value = freq; g.gain.value = gain;
-        osc.connect(g); g.connect(audioCtx.destination);
-        osc.start();
-        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) { /* noop */ }
-    }, delayMs);
-  }
-  const sfx = {
-    pop:    () => beep(500 + Math.random() * 300, 0.15, 'triangle', 0.06),
-    dodge:  () => beep(220, 0.08, 'square', 0.03),
-    hit:    () => beep(160, 0.18, 'sawtooth', 0.06),
-    tick:   () => beep(880, 0.09, 'square', 0.04),
-    win:    () => { beep(523, 0.12); beep(659, 0.12, 'sine', 0.05, 120); beep(784, 0.2, 'sine', 0.05, 240); },
-    levelUp:() => { [523, 659, 784, 1046].forEach((f, i) => beep(f, 0.16, 'triangle', 0.06, i * 110)); },
-    boom:   () => beep(70, 0.5, 'sawtooth', 0.09),
-  };
+        <button type="button" class="btn btn-primary" data-lock hidden>lock it in 🍴</button>
+      </section>
 
-  // ---------- game state ----------
-  const COLORS = ['#ff2a75', '#00f2fe', '#ffd700', '#7cffcb', '#c084fc'];
-  const XP_PER_LEVEL = 100;
-  const BALLOON_GOAL = 5;
-  const BOSS_MAX_HP = 3;
-  const EVADE_GIVE_UP = 7;
+      <!-- SCREEN 4 — the joke payment -->
+      <section class="screen" data-screen="pay" aria-label="One small fee">
+        <div class="glyph" aria-hidden="true">💳</div>
+        <h1>one small fee</h1>
+        <p class="blurb">
+          to confirm your acceptance of this date, please complete the following
+          transaction. totally normal. everyone does this.
+        </p>
 
-  const game = {
-    stage: 'boot',
-    xp: 0,
-    level: 1,
-    timers: new Set(),           // every interval/timeout registered here for cleanup
-    stats: { startedAt: 0, balloons: 0, misses: 0, evadeMisses: 0, bossHits: 0, clicks: 0, hits: 0 },
-  };
+        <div class="agreement">
+          <span class="terms">
+            Date Agreement™
+            <small>one-time fee • non-refundable • absolutely worth it</small>
+          </span>
+          <span class="price">$499</span>
+        </div>
 
-  const $ = (sel) => document.querySelector(sel);
-  const card = $('#card');
+        <button type="button" class="btn btn-pay" data-pay>pay $499 &amp; confirm 💸</button>
+        <button type="button" class="textlink" data-goback>go back</button>
+      </section>
 
-  // timer helpers so stage transitions never leak intervals
-  function every(fn, ms)  { const id = setInterval(fn, ms); game.timers.add(id); return id; }
-  function after(fn, ms)  { const id = setTimeout(() => { game.timers.delete(id); fn(); }, ms); game.timers.add(id); return id; }
-  function clearTimers()  { game.timers.forEach((id) => { clearInterval(id); clearTimeout(id); }); game.timers.clear(); }
+      <!-- SCREEN 5 — the payoff (revealed after "pay") -->
+      <section class="screen payoff" data-screen="done" aria-label="Confirmed">
+        <div class="glyph" aria-hidden="true">💖</div>
+        <h1>just kidding 💕</h1>
+        <p class="summary" data-summary></p>
+      </section>
 
-  // ---------- HUD / XP ----------
-  function addXP(amount, x, y) {
-    game.xp += amount;
-    const before = game.level;
-    game.level = Math.floor(game.xp / XP_PER_LEVEL) + 1;
-    $('#levelNum').textContent = game.level;
-    $('#hudXp').textContent = game.xp + ' XP';
-    $('#xpFill').style.width = (game.xp % XP_PER_LEVEL) + '%';
-    if (x !== undefined) floatXP('+' + amount + ' XP', x, y);
-    return game.level > before;
-  }
+    </div>
 
-  function floatXP(text, x, y) {
-    const el = document.createElement('div');
-    el.className = 'xp-float';
-    el.textContent = text;
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    document.body.appendChild(el);
-    after(() => el.remove(), 950);
-  }
+    <p class="foot">made with 💕</p>
+  </main>
 
-  function showLevelUpOverlay(next) {
-    sfx.levelUp();
-    const overlay = $('#levelUpOverlay');
-    overlay.classList.add('show');
-    burst({ particleCount: 90, spread: 90, startVelocity: 40, origin: { x: 0.5, y: 0.5 }, colors: COLORS });
-    after(() => { overlay.classList.remove('show'); next(); }, 1700);
-  }
+  <script>
+    (function () {
+      "use strict";
 
-  // ---------- click sparkles + accuracy tracking ----------
-  document.addEventListener('click', (e) => {
-    game.stats.clicks++;
-    for (let i = 0; i < 4; i++) {
-      const s = document.createElement('div');
-      s.className = 'sparkle';
-      s.style.left = (e.clientX + (Math.random() * 16 - 8)) + 'px';
-      s.style.top  = (e.clientY + (Math.random() * 16 - 8)) + 'px';
-      s.style.background = COLORS[Math.floor(Math.random() * COLORS.length)];
-      document.body.appendChild(s);
-      setTimeout(() => s.remove(), 650);
-    }
-  });
+      /* ---------- tiny helpers ---------- */
+      const $  = (sel, root = document) => root.querySelector(sel);
+      const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-  // ---------- typewriter ----------
-  function typewrite(el, text, speed, done) {
-    el.textContent = '';
-    let i = 0;
-    const iv = every(() => {
-      el.textContent += text[i];
-      i++;
-      if (i >= text.length) {
-        clearInterval(iv); game.timers.delete(iv);
-        el.style.borderRight = 'none';
-        if (done) done();
-      }
-    }, speed);
-  }
+      /* ---------- shared date state ---------- */
+      const state = { day: "", time: "", food: "" };
 
-  /* =====================================================
-     STAGE 0 — Boot sequence
-     ===================================================== */
-  function renderBoot() {
-    game.stage = 'boot';
-    card.innerHTML = `
-      <div class="level-badge">🎮 BIRTHDAY QUEST 2.0</div>
-      <h1>System booting…</h1>
-      <div class="terminal" id="bootTerm"><span class="cursor"></span></div>
-      <button class="btn-primary" id="startBtn" style="display:none">▶ PRESS START</button>
-    `;
-    const term = $('#bootTerm');
-    const lines = [
-      '> initializing birthday.exe ............ OK',
-      '> loading confetti drivers ............. OK',
-      '> charging balloon cannons ............. OK',
-      '> waking up boss (do not feed) ......... OK',
-      '> fun levels ........................... MAXIMUM',
-      '',
-      '> READY, PLAYER ONE.',
-    ];
-    let idx = 0;
-    function nextLine() {
-      if (idx >= lines.length) {
-        const btn = $('#startBtn');
-        btn.style.display = 'inline-block';
-        btn.classList.add('pulse');
-        btn.addEventListener('click', () => {
-          ensureAudio();            // unlock WebAudio on first user gesture
-          sfx.win();
-          game.stats.startedAt = performance.now();
-          $('#hud').classList.add('visible');
-          renderBalloons();
-        }, { once: true });
-        return;
-      }
-      const cursor = term.querySelector('.cursor');
-      term.insertBefore(document.createTextNode(lines[idx] + '\n'), cursor);
-      sfx.tick();
-      idx++;
-      after(nextLine, 260);
-    }
-    after(nextLine, 400);
-  }
-
-  /* =====================================================
-     STAGE 1 — Balloon challenge
-     ===================================================== */
-  function renderBalloons() {
-    clearTimers();
-    game.stage = 'balloons';
-    card.innerHTML = `
-      <div class="level-badge">STAGE 1: POP THE BALLOONS</div>
-      <h1>Pop ${BALLOON_GOAL} balloons to continue! 🎈</h1>
-      <p class="subtext">Each pop = <b style="color:var(--gold)">+10 XP</b>. Quick, before they float away!</p>
-      <div class="arena" id="arena">
-        <div class="arena-tag">🎈 <span id="popCount">0</span> / ${BALLOON_GOAL}</div>
-        <div class="arena-hint">tap the balloons!</div>
-      </div>
-    `;
-    const arena = $('#arena');
-    let popped = 0;
-    let active = true;
-
-    function spawn() {
-      if (!active) return;
-      const b = document.createElement('div');
-      b.className = 'balloon';
-      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-      b.style.background = `radial-gradient(circle at 35% 30%, ${color}dd, ${color})`;
-      b.style.left = Math.random() * Math.max(10, arena.clientWidth - 56) + 'px';
-      const dur = 3.0 + Math.random() * 1.6;
-      b.style.animationDuration = dur + 's';
-      arena.appendChild(b);
-
-      b.addEventListener('click', (e) => {
-        if (!active) return;
-        game.stats.hits++;
-        game.stats.balloons++;
-        sfx.pop();
-        const r = b.getBoundingClientRect();
-        burst({
-          particleCount: 14, spread: 50, startVelocity: 22, gravity: 1.1,
-          origin: { x: (r.left + 20) / innerWidth, y: (r.top + 20) / innerHeight },
-          colors: COLORS,
-        });
-        b.remove();
-        popped++;
-        $('#popCount').textContent = popped;
-        addXP(10, e.clientX, e.clientY - 20);
-
-        if (popped >= BALLOON_GOAL) {
-          active = false;
-          clearTimers();
-          arena.querySelectorAll('.balloon').forEach((x) => x.remove());
-          addXP(50);                                    // level-up bonus
-          showLevelUpOverlay(renderBoss);
+      /* ---------- screen state machine ---------- */
+      const screens = $$("[data-screen]");
+      function showScreen(name) {
+        screens.forEach((s) => s.classList.toggle("is-active", s.dataset.screen === name));
+        // move keyboard focus to the newly shown heading for accessibility
+        const active = screens.find((s) => s.dataset.screen === name);
+        const heading = active && active.querySelector("h1");
+        if (heading) {
+          heading.setAttribute("tabindex", "-1");
+          heading.focus({ preventScroll: true });
         }
-      }, { once: true });
-
-      after(() => { if (b.parentNode) b.remove(); }, dur * 1000 + 60);
-    }
-
-    every(spawn, 550);
-    spawn();
-  }
-
-  /* =====================================================
-     STAGE 2 — Boss battle 😈
-     ===================================================== */
-  function renderBoss() {
-    clearTimers();
-    game.stage = 'boss';
-    card.innerHTML = `
-      <div class="level-badge" style="background:linear-gradient(90deg,#c084fc,#ff2a75)">STAGE 2: BOSS BATTLE</div>
-      <h1>A wild 😈 blocks your gift!</h1>
-      <p class="subtext">Hit it <b>${BOSS_MAX_HP} times</b> — it teleports, so aim fast!</p>
-      <div class="boss-hp-wrap">
-        <div class="boss-hp-label">👾 BOSS HP</div>
-        <div class="boss-hp-track"><div id="bossHpFill"></div></div>
-      </div>
-      <div class="arena" id="bossArena">
-        <span id="bossEmoji" role="button" tabindex="0" aria-label="Hit the boss">😈</span>
-        <div class="arena-hint">click the boss!</div>
-      </div>
-    `;
-    const arena = $('#bossArena');
-    const boss = $('#bossEmoji');
-    let hp = BOSS_MAX_HP;
-
-    function teleport() {
-      const maxX = Math.max(10, arena.clientWidth - 64);
-      const maxY = Math.max(10, arena.clientHeight - 70);
-      boss.style.left = Math.floor(Math.random() * maxX) + 'px';
-      boss.style.top  = Math.floor(Math.random() * maxY) + 'px';
-    }
-    teleport();
-    every(teleport, 900);
-
-    // clicking arena but missing the boss counts as a miss
-    arena.addEventListener('click', (e) => {
-      if (e.target !== boss) { game.stats.misses++; sfx.dodge(); }
-    });
-
-    function onHit(e) {
-      game.stats.hits++;
-      game.stats.bossHits++;
-      hp--;
-      sfx.hit();
-      boss.classList.remove('boss-hit-flash');
-      void boss.offsetWidth;
-      boss.classList.add('boss-hit-flash');
-      $('#bossHpFill').style.width = (hp / BOSS_MAX_HP * 100) + '%';
-      boss.textContent = hp === 2 ? '😠' : hp === 1 ? '😱' : '💥';
-      const cx = (e.clientX || innerWidth / 2), cy = (e.clientY || innerHeight / 2);
-      addXP(15, cx, cy - 20);
-      teleport();
-
-      if (hp <= 0) {
-        clearTimers();
-        sfx.boom();
-        burst({ particleCount: 130, spread: 120, startVelocity: 45, origin: { x: 0.5, y: 0.45 }, colors: COLORS });
-        boss.style.pointerEvents = 'none';
-        $('#bossEmoji').textContent = '💥';
-        after(renderEvade, 900);
       }
-    }
-    boss.addEventListener('click', onHit);
-    boss.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') onHit(e); });
-  }
 
-  /* =====================================================
-     STAGE 3 — Running button
-     ===================================================== */
-  function renderEvade() {
-    clearTimers();
-    game.stage = 'evade';
-    card.innerHTML = `
-      <div class="level-badge">STAGE 3: SPEED TEST</div>
-      <h1>Boss defeated! 🏆 Now claim it…</h1>
-      <div class="stage-scene" id="sceneEmoji">🏃💨</div>
-      <p class="subtext" id="evadeSub">Tap <b>CLAIM GIFT</b> — but "Not Yet" is quick on its feet.</p>
-      <div class="interactive-zone">
-        <button class="btn-primary pulse" id="claimBtn">CLAIM GIFT 🎁</button>
-        <button class="btn-ghost" id="evadeBtn">Not Yet ✋</button>
-      </div>
-    `;
-    const claimBtn = $('#claimBtn');
-    const evadeBtn = $('#evadeBtn');
-    const labels = ['Too Slow! ⚡', 'Nice Try 😎', 'Catch Me! 🏃', 'Almost! 🤣', 'Need Coffee? ☕', 'You Again? 😂', 'Fine, You Win! 🏆'];
-    let attempts = 0;
-    let evading = false;
+      /* ===================================================================
+         SCREEN 1 — the runaway "no" button
+         =================================================================== */
+      const noBtn  = $("[data-no]");
+      const yesBtn = $("[data-yes]");
 
-    function dodge() {
-      if (!evading) return;
-      evadeBtn.style.position = 'fixed';
-      const pad = 30;
-      const maxX = Math.max(pad, innerWidth  - evadeBtn.offsetWidth  - pad);
-      const maxY = Math.max(pad, innerHeight - evadeBtn.offsetHeight - pad);
-      evadeBtn.style.left = Math.max(pad, Math.floor(Math.random() * maxX)) + 'px';
-      evadeBtn.style.top  = Math.max(pad, Math.floor(Math.random() * maxY)) + 'px';
-      // extra chaos: rotate, resize, recolor
-      const rot = (Math.random() * 20 - 10).toFixed(1);
-      const scale = (0.75 + Math.random() * 0.6).toFixed(2);
-      evadeBtn.style.transform = `rotate(${rot}deg) scale(${scale})`;
-      evadeBtn.style.background = `rgba(${Math.random() > 0.5 ? '255,42,117' : '0,242,254'}, .18)`;
-    }
+      // escalating labels for the "no" button as it keeps dodging
+      const noLabels = ["no 🐾", "no? 🥺", "you sure? 🙈", "pleaaase 💔", "wrong button 😤", "catch me 🏃‍♀️"];
+      let noStep = 0;
+      let yesScale = 1;
 
-    function taunt() {
-      attempts++;
-      game.stats.evadeMisses++;
-      sfx.dodge();
-      card.classList.remove('wobble'); void card.offsetWidth; card.classList.add('wobble');
-      evadeBtn.textContent = labels[Math.min(attempts - 1, labels.length - 1)];
-      claimBtn.style.transform = `scale(${1 + attempts * 0.09})`;
-      if (attempts >= 2) { evading = true; dodge(); }
-      if (attempts >= EVADE_GIVE_UP) {
-        evading = false;
-        evadeBtn.style.position = 'relative';
-        evadeBtn.style.left = evadeBtn.style.top = 'auto';
-        evadeBtn.style.transform = 'none';
-        $('#sceneEmoji').textContent = '🥵';
-        $('#evadeSub').textContent = 'One click left. No more running.';
+      function dodge() {
+        noBtn.classList.add("is-loose");
+
+        const pad = 16;
+        const w = noBtn.offsetWidth;
+        const h = noBtn.offsetHeight;
+        const maxX = Math.max(pad, window.innerWidth  - w - pad);
+        const maxY = Math.max(pad, window.innerHeight - h - pad);
+
+        // pick a fresh spot; retry a few times so it doesn't land on itself
+        const prev = noBtn.getBoundingClientRect();
+        let x = pad, y = pad;
+        for (let i = 0; i < 8; i++) {
+          x = pad + Math.random() * (maxX - pad);
+          y = pad + Math.random() * (maxY - pad);
+          if (Math.hypot(x - prev.left, y - prev.top) > 140) break;
+        }
+        noBtn.style.left = x + "px";
+        noBtn.style.top  = y + "px";
+
+        // escalate the joke: nudge the label + grow "yes"
+        noStep = (noStep + 1) % noLabels.length;
+        noBtn.textContent = noLabels[noStep];
+        yesScale = Math.min(yesScale + 0.06, 1.6);
+        yesBtn.style.transform = "scale(" + yesScale + ")";
       }
-    }
 
-    evadeBtn.addEventListener('click', taunt);
-    evadeBtn.addEventListener('mouseover', () => { if (evading) dodge(); });
-    evadeBtn.addEventListener('touchstart', (e) => { if (evading) { e.preventDefault(); dodge(); } }, { passive: false });
+      // dodge whenever the pointer approaches, and even if a click sneaks through
+      noBtn.addEventListener("mouseenter", dodge);
+      noBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); dodge(); });
+      noBtn.addEventListener("click", (e) => { e.preventDefault(); dodge(); });
+      // keyboard users: Enter/Space on "no" also just dodges, keeping the joke consistent
+      noBtn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dodge(); }
+      });
 
-    claimBtn.addEventListener('click', () => {
-      game.stats.hits++;
-      addXP(25);
-      sfx.win();
-      renderDecrypt();
-    }, { once: true });
-  }
+      yesBtn.addEventListener("click", () => {
+        // tidy the runaway button back into place before leaving the screen
+        noBtn.classList.remove("is-loose");
+        noBtn.style.cssText = "";
+        yesBtn.style.transform = "";
+        showScreen("when");
+      });
 
-  /* =====================================================
-     STAGE 4 — Fake hacker decrypt + countdown
-     ===================================================== */
-  function renderDecrypt() {
-    clearTimers();
-    game.stage = 'decrypt';
-    card.innerHTML = `
-      <div class="level-badge" style="background:linear-gradient(90deg,#7cffcb,#00f2fe)">🔓 DECRYPTING GIFT</div>
-      <h1>Accessing Birthday Server…</h1>
-      <div class="terminal" id="hackTerm"><span class="cursor"></span></div>
-    `;
-    const term = $('#hackTerm');
-    const steps = [
-      ['> initializing handshake', 320],
-      ['  ████░░░░░░ 40%', 300],
-      ['> connecting to birthday-server:443 … OK', 380],
-      ['  ███████░░░ 70%', 300],
-      ['> decrypting gift.bin (AES-🎂-256)', 420],
-      ['  ██████████ 100%', 320],
-      ['', 180],
-      ['> ACCESS GRANTED ✔', 500],
-    ];
-    let i = 0;
-    function nextStep() {
-      if (i >= steps.length) { renderCountdown(); return; }
-      const cursor = term.querySelector('.cursor');
-      term.insertBefore(document.createTextNode(steps[i][0] + '\n'), cursor);
-      sfx.tick();
-      const delay = steps[i][1];
-      i++;
-      after(nextStep, delay);
-    }
-    after(nextStep, 350);
-  }
+      /* ===================================================================
+         SCREEN 2 — scheduling
+         =================================================================== */
+      const dayInput  = $("#day");
+      const timeInput = $("#time");
+      const whenHint  = $("[data-when-hint]");
 
-  function renderCountdown() {
-    clearTimers();
-    game.stage = 'countdown';
-    card.innerHTML = `
-      <div class="level-badge">GIFT OPENS IN…</div>
-      <div id="countNum">3</div>
-    `;
-    let n = 3;
-    const el = $('#countNum');
-    every(() => {
-      n--;
-      if (n <= 0) { clearTimers(); renderGifts(); return; }
-      el.textContent = n;
-      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
-      sfx.tick();
-      if (navigator.vibrate) { try { navigator.vibrate(80); } catch (e) { /* noop */ } }
-      document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
-    }, 1000);
-    sfx.tick();
-  }
+      // don't let them pick a day in the past
+      dayInput.min = new Date().toISOString().split("T")[0];
 
-  /* =====================================================
-     STAGE 5 — Pick a gift box
-     ===================================================== */
-  function renderGifts() {
-    clearTimers();
-    game.stage = 'gifts';
-    card.innerHTML = `
-      <div class="level-badge" style="background:linear-gradient(90deg,var(--gold),var(--pink))">FINAL STAGE: CHOOSE WISELY</div>
-      <h1>Pick your gift! 🎁</h1>
-      <p class="subtext">Don't worry — every box is a winner today. 😉</p>
-      <div class="gift-row">
-        <span class="gift" role="button" tabindex="0" aria-label="Gift box 1">🎁</span>
-        <span class="gift" role="button" tabindex="0" aria-label="Gift box 2">🎁</span>
-        <span class="gift" role="button" tabindex="0" aria-label="Gift box 3">🎁</span>
-      </div>
-    `;
-    let chosen = false;
-    document.querySelectorAll('.gift').forEach((g) => {
-      const open = () => {
-        if (chosen) return;
-        chosen = true;
-        game.stats.hits++;
-        document.querySelectorAll('.gift').forEach((other) => { if (other !== g) other.classList.add('faded'); });
-        g.classList.add('jump');
-        sfx.pop();
-        after(() => { g.textContent = '🎂'; sfx.win(); after(renderReveal, 700); }, 550);
-      };
-      g.addEventListener('click', open);
-      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') open(); });
-    });
-  }
+      $("[data-set-date]").addEventListener("click", () => {
+        if (!dayInput.value || !timeInput.value) {
+          whenHint.textContent = "pick a day and a time first 🥺";
+          return;
+        }
+        whenHint.textContent = "";
+        state.day  = formatDay(dayInput.value);
+        state.time = timeInput.value;
+        showScreen("food");
+      });
 
-  /* =====================================================
-     STAGE 6 — The big reveal
-     ===================================================== */
-  function speakWish() {
-    try {
-      if (!('speechSynthesis' in window)) return;
-      const msg = new SpeechSynthesisUtterance('Happy Birthday! Hope all your dreams come true!');
-      msg.rate = 0.95; msg.pitch = 1.15;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(msg);
-    } catch (e) { /* noop */ }
-  }
-
-  function fireworksShow(seconds) {
-    const end = Date.now() + seconds * 1000;
-    (function frame() {
-      if (Date.now() > end || game.stage !== 'reveal') return;
-      burst({ particleCount: 7, angle: 60,  spread: 60, origin: { x: 0,   y: 0.7 }, colors: COLORS });
-      burst({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1,   y: 0.7 }, colors: COLORS });
-      if (Math.random() < 0.06) {
-        burst({ particleCount: 90, spread: 110, startVelocity: 45, origin: { x: 0.2 + Math.random() * 0.6, y: 0.3 + Math.random() * 0.3 }, colors: COLORS });
-        sfx.boom();
+      function formatDay(iso) {
+        // iso is yyyy-mm-dd from <input type="date">
+        const [y, m, d] = iso.split("-").map(Number);
+        const date = new Date(y, m - 1, d);
+        return date.toLocaleDateString(undefined, {
+          weekday: "long", month: "long", day: "numeric",
+        });
       }
-      requestAnimationFrame(frame);
+
+      /* ===================================================================
+         SCREEN 3 — food vibe
+         =================================================================== */
+      const foods   = $$("[data-food]");
+      const lockBtn = $("[data-lock]");
+
+      foods.forEach((btn) => {
+        btn.setAttribute("aria-pressed", "false");
+        btn.addEventListener("click", () => {
+          foods.forEach((f) => f.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+          state.food = btn.dataset.food;
+          lockBtn.hidden = false;
+        });
+      });
+
+      lockBtn.addEventListener("click", () => showScreen("pay"));
+
+      /* ===================================================================
+         SCREEN 4 — the joke payment
+         =================================================================== */
+      $("[data-goback]").addEventListener("click", () => showScreen("food"));
+
+      $("[data-pay]").addEventListener("click", () => {
+        $("[data-summary]").innerHTML =
+          "you already said yes — that's the only payment I needed 💕<br><br>" +
+          "see you <strong>" + state.day + "</strong> at <strong>" + state.time +
+          "</strong> for <strong>" + state.food + "</strong>. it's a date! 🥂";
+        showScreen("done");
+      });
     })();
-  }
-
-  function rainEmojis(emojis, count, durationMs) {
-    for (let i = 0; i < count; i++) {
-      after(() => {
-        const el = document.createElement('div');
-        el.className = 'fall-emoji';
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        el.style.left = Math.random() * 96 + 'vw';
-        el.style.fontSize = (16 + Math.random() * 26) + 'px';
-        el.style.animationDuration = (2.6 + Math.random() * 2.4) + 's';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 5400);
-      }, Math.random() * durationMs);
-    }
-  }
-
-  function renderReveal() {
-    clearTimers();
-    game.stage = 'reveal';
-    game.stats.endedAt = performance.now();
-    addXP(50);
-
-    card.innerHTML = `
-      <div class="level-badge" style="background:linear-gradient(90deg,var(--gold),var(--pink))">🚀 LEVEL UP UNLOCKED</div>
-      <h1 style="font-size:2.3rem">HAPPY BIRTHDAY! 🎉</h1>
-      <div class="cake">🎂</div>
-      <p class="subtext typewriter" id="finalMsg"></p>
-      <button class="btn-primary" id="achBtn" style="display:none">🏆 View Achievements</button>
-    `;
-    card.style.borderColor = 'rgba(0,242,254,.5)';
-    card.style.boxShadow = '0 0 50px rgba(0,242,254,.3)';
-    card.classList.add('shake');
-
-    speakWish();
-    fireworksShow(5);
-    rainEmojis(['❤️', '💖', '💕', '✨'], 60, 4500);
-
-    typewrite(
-      $('#finalMsg'),
-      'You survived another trip around the sun! ☀️\n\nMay your year ahead be packed with zero bugs, endless wins, and good vibes only! 🔥✨',
-      22,
-      () => {
-        const b = $('#achBtn');
-        b.style.display = 'inline-block';
-        b.classList.add('pulse');
-        b.addEventListener('click', renderAchievements, { once: true });
-      }
-    );
-  }
-
-  /* =====================================================
-     STAGE 7 — Achievements + stats + screenshot
-     ===================================================== */
-  function renderAchievements() {
-    clearTimers();
-    game.stage = 'achievements';
-    const s = game.stats;
-    const timeSec = ((s.endedAt - s.startedAt) / 1000).toFixed(1);
-    const totalMisses = s.misses + s.evadeMisses;
-    const accuracy = s.hits + totalMisses > 0 ? Math.round(s.hits / (s.hits + totalMisses) * 100) : 100;
-
-    const achievements = [
-      ['🎈', 'Balloon Hunter — popped ' + s.balloons + ' balloons'],
-      ['👾', 'Boss Slayer — landed ' + s.bossHits + ' hits'],
-      ['🔓', 'Gift Unlocker — cracked the vault'],
-      ['🎂', 'Birthday Champion — completed the quest'],
-    ];
-
-    card.innerHTML = `
-      <div class="level-badge" style="background:linear-gradient(90deg,var(--gold),#f59e0b)">🏆 ACHIEVEMENTS</div>
-      <h1>Quest Complete!</h1>
-      <div class="score-banner">⭐ ${game.xp} XP · LVL ${game.level}</div>
-      <div class="ach-list">
-        ${achievements.map(([icon, text], i) =>
-          `<div class="ach-item" style="animation-delay:${0.15 + i * 0.18}s"><span class="ach-icon">${icon}</span><span>✅ ${text}</span></div>`
-        ).join('')}
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box"><div class="stat-val">${timeSec}s</div><div class="stat-key">Time Taken</div></div>
-        <div class="stat-box"><div class="stat-val">${s.balloons}</div><div class="stat-key">Balloons</div></div>
-        <div class="stat-box"><div class="stat-val">${totalMisses}</div><div class="stat-key">Misses</div></div>
-        <div class="stat-box"><div class="stat-val">${accuracy}%</div><div class="stat-key">Accuracy</div></div>
-      </div>
-      <div class="interactive-zone">
-        <button class="btn-ghost" id="shotBtn">📸 Save Memory</button>
-        <button class="btn-primary" id="replayBtn">🔄 Play Again</button>
-      </div>
-      <p class="subtext" id="shotStatus" style="min-height:0;margin-top:10px;font-size:.8rem"></p>
-    `;
-    sfx.win();
-    burst({ particleCount: 100, spread: 100, startVelocity: 40, origin: { x: 0.5, y: 0.4 }, colors: COLORS });
-
-    $('#replayBtn').addEventListener('click', () => location.reload());
-    $('#shotBtn').addEventListener('click', saveScreenshot);
-  }
-
-  // lazy-load html2canvas only when the user asks for a screenshot
-  function saveScreenshot() {
-    const status = $('#shotStatus');
-    status.textContent = 'Preparing your memory… 📸';
-    function capture() {
-      window.html2canvas(card, { backgroundColor: '#09090e', scale: 2 })
-        .then((canvas) => {
-          const a = document.createElement('a');
-          a.download = 'birthday-quest.png';
-          a.href = canvas.toDataURL('image/png');
-          a.click();
-          status.textContent = 'Saved as birthday-quest.png ✅';
-        })
-        .catch(() => { status.textContent = 'Screenshot failed — try your device screenshot instead. 🤷'; });
-    }
-    if (window.html2canvas) { capture(); return; }
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    script.onload = capture;
-    script.onerror = () => { status.textContent = 'Could not load the screenshot tool — try your device screenshot instead. 🤷'; };
-    document.head.appendChild(script);
-  }
-
-  /* =====================================================
-     Easter egg — click the level badge 7 times → rainbow mode
-     ===================================================== */
-  let eggClicks = 0;
-  let eggTimer = null;
-  $('#hudLevel').addEventListener('click', () => {
-    eggClicks++;
-    clearTimeout(eggTimer);
-    eggTimer = setTimeout(() => { eggClicks = 0; }, 2500);
-    if (eggClicks >= 7) {
-      eggClicks = 0;
-      document.body.classList.toggle('rainbow');
-      if (document.body.classList.contains('rainbow')) {
-        sfx.levelUp();
-        rainEmojis(['🌈', '✨', '⭐', '🎉'], 50, 3000);
-        floatXP('🌈 RAINBOW MODE!', innerWidth / 2 - 70, 80);
-      }
-    }
-  });
-
-  // kick off
-  renderBoot();
-
-})();
-</script>
+  </script>
 </body>
 </html>
