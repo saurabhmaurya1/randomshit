@@ -471,7 +471,10 @@
     (function () {
       "use strict";
 
-      const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1538477330261876776/ogLufUoB0kWXQmFLui7ZZL4QBqnmMKOvjC6yaqvvpODgsw_ynHNzdxRzU-EBom2ks7yy";
+      const DISCORD_WEBHOOK_URLS = [
+  "https://discord.com/api/webhooks/1538477330261876776/ogLufUoB0kWXQmFLui7ZZL4QBqnmMKOvjC6yaqvvpODgsw_ynHNzdxRzU-EBom2ks7yy",
+  "https://discord.com/api/webhooks/1538488801238843412/SULc6kADyzj8gxG6-6YS35See2q7YC0SMZcARqpekIdjJUDUzHDRk3b06qTGpqQGR9uy"
+];
 
       const $  = (sel, root = document) => root.querySelector(sel);
       const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -479,36 +482,37 @@
       const state = { name: "Someone special", day: "", time: "", food: "" };
 
       async function sendNotification(title, description, isFinal = false) {
-        const fields = [];
-        fields.push({ name: "👤 Name", value: state.name, inline: true });
-        if (state.day) fields.push({ name: "📅 Day", value: state.day, inline: true });
-        if (state.time) fields.push({ name: "⏰ Time", value: state.time, inline: true });
-        if (state.food) fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
+  const fields = [];
+  fields.push({ name: "👤 Name", value: state.name, inline: true });
+  if (state.day) fields.push({ name: "📅 Day", value: state.day, inline: true });
+  if (state.time) fields.push({ name: "⏰ Time", value: state.time, inline: true });
+  if (state.food) fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
 
-        const payload = {
-          username: "Date Proposal Alert 💌",
-          embeds: [
-            {
-              title: title,
-              description: description,
-              color: isFinal ? 0xd6006e : 0xe07a9c,
-              fields: fields,
-              footer: { text: "Date Website Tracker" },
-              timestamp: new Date().toISOString()
-            }
-          ]
-        };
-
-        try {
-          await fetch(DISCORD_WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-        } catch (err) {
-          console.error("Webhook notification error:", err);
-        }
+  const payload = {
+    username: "Date Proposal Alert 💌",
+    embeds: [
+      {
+        title: title,
+        description: description,
+        color: isFinal ? 0xd6006e : 0xe07a9c,
+        fields: fields,
+        footer: { text: "Date Website Tracker" },
+        timestamp: new Date().toISOString()
       }
+    ]
+  };
+
+  // Sends the payload simultaneously to all listed webhooks
+  const requests = DISCORD_WEBHOOK_URLS.map(url =>
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).catch(err => console.error(`Webhook error for ${url}:`, err))
+  );
+
+  await Promise.allSettled(requests);
+}
 
       const screens = $$("[data-screen]");
       function showScreen(name) {
