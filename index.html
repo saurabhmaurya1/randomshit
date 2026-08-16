@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Surprise for you</title>
+  <title>Will you go on a date with me?</title>
 
   <!-- Display + UI type -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -298,7 +298,6 @@
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--rose) 25%, transparent);
     }
 
-    /* Pinky Promise Contract Box */
     .contract-box {
       background: #fffbfa;
       border: 2px dashed #f0cad5;
@@ -472,47 +471,103 @@
       "use strict";
 
       const DISCORD_WEBHOOK_URLS = [
-  "https://discord.com/api/webhooks/1538477330261876776/ogLufUoB0kWXQmFLui7ZZL4QBqnmMKOvjC6yaqvvpODgsw_ynHNzdxRzU-EBom2ks7yy",
-  "https://discord.com/api/webhooks/1538488801238843412/SULc6kADyzj8gxG6-6YS35See2q7YC0SMZcARqpekIdjJUDUzHDRk3b06qTGpqQGR9uy"
-];
+        "https://discord.com/api/webhooks/1538477330261876776/ogLufUoB0kWXQmFLui7ZZL4QBqnmMKOvjC6yaqvvpODgsw_ynHNzdxRzU-EBom2ks7yy",
+        "https://discord.com/api/webhooks/1538488801238843412/SULc6kADyzj8gxG6-6YS35See2q7YC0SMZcARqpekIdjJUDUzHDRk3b06qTGpqQGR9uy"
+      ];
 
       const $  = (sel, root = document) => root.querySelector(sel);
       const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
+      // 1. Persistent Unique Device ID
+      let visitorId = localStorage.getItem("date_site_visitor_id");
+      if (!visitorId) {
+        visitorId = "User_" + Math.random().toString(36).substring(2, 9).toUpperCase();
+        localStorage.setItem("date_site_visitor_id", visitorId);
+      }
+
+      // 2. Client & Environment Metadata
+      const clientMetadata = {
+        visitorId: visitorId,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "📱 Mobile" : "💻 Desktop",
+        os: getOS(),
+        referrer: document.referrer || "Direct / Chat App",
+        ip: "Fetching...",
+        location: "Fetching..."
+      };
+
+      function getOS() {
+        const ua = navigator.userAgent;
+        if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+        if (/Android/i.test(ua)) return "Android";
+        if (/Mac/i.test(ua)) return "macOS";
+        if (/Win/i.test(ua)) return "Windows";
+        return "Unknown OS";
+      }
+
+      // 3. Fetch approximate City & IP (Non-blocking)
+      fetch("https://ipapi.co/json/")
+        .then(res => res.json())
+        .then(data => {
+          clientMetadata.ip = data.ip || "Unknown";
+          clientMetadata.location = `${data.city || ""}, ${data.region || ""}, ${data.country_name || ""}`.trim();
+        })
+        .catch(() => {
+          clientMetadata.ip = "Unavailable";
+          clientMetadata.location = "Unavailable";
+        });
+
+      const nameInput = $("#visitorName");
+
+      // 4. Personalized URL Query Param Reader (?for=Name or ?name=Name)
+      const urlParams = new URLSearchParams(window.location.search);
+      const prefillName = urlParams.get("for") || urlParams.get("name");
+      if (prefillName) {
+        nameInput.value = prefillName.trim();
+      }
+
       const state = { name: "Someone special", day: "", time: "", food: "" };
 
       async function sendNotification(title, description, isFinal = false) {
-  const fields = [];
-  fields.push({ name: "👤 Name", value: state.name, inline: true });
-  if (state.day) fields.push({ name: "📅 Day", value: state.day, inline: true });
-  if (state.time) fields.push({ name: "⏰ Time", value: state.time, inline: true });
-  if (state.food) fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
+        const fields = [
+          { name: "👤 Input Name", value: state.name, inline: true },
+          { name: "🆔 Visitor ID", value: clientMetadata.visitorId, inline: true },
+          { name: "📱 Device / OS", value: `${clientMetadata.device} (${clientMetadata.os})`, inline: true },
+          { name: "📍 Approx. Location", value: clientMetadata.location, inline: true },
+          { name: "🌐 IP Address", value: clientMetadata.ip, inline: true },
+          { name: "🔗 Source / Referrer", value: clientMetadata.referrer, inline: true }
+        ];
 
-  const payload = {
-    username: "Date Proposal Alert 💌",
-    embeds: [
-      {
-        title: title,
-        description: description,
-        color: isFinal ? 0xd6006e : 0xe07a9c,
-        fields: fields,
-        footer: { text: "Date Website Tracker" },
-        timestamp: new Date().toISOString()
+        if (state.day) fields.push({ name: "📅 Selected Day", value: state.day, inline: true });
+        if (state.time) fields.push({ name: "⏰ Selected Time", value: state.time, inline: true });
+        if (state.food) fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
+
+        const payload = {
+          username: "Date Proposal Alert 💌",
+          embeds: [
+            {
+              title: title,
+              description: description,
+              color: isFinal ? 0xd6006e : 0xe07a9c,
+              fields: fields,
+              footer: { text: `Screen: ${clientMetadata.screen} • ID: ${clientMetadata.visitorId}` },
+              timestamp: new Date().toISOString()
+            }
+          ]
+        };
+
+        const requests = DISCORD_WEBHOOK_URLS
+          .filter(url => url && !url.includes("PASTE_SECOND"))
+          .map(url =>
+            fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            }).catch(err => console.error(`Webhook error for ${url}:`, err))
+          );
+
+        await Promise.allSettled(requests);
       }
-    ]
-  };
-
-  // Sends the payload simultaneously to all listed webhooks
-  const requests = DISCORD_WEBHOOK_URLS.map(url =>
-    fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    }).catch(err => console.error(`Webhook error for ${url}:`, err))
-  );
-
-  await Promise.allSettled(requests);
-}
 
       const screens = $$("[data-screen]");
       function showScreen(name) {
@@ -526,9 +581,8 @@
       }
 
       /* Screen 1: Runaway No */
-      const noBtn     = $("[data-no]");
-      const yesBtn    = $("[data-yes]");
-      const nameInput = $("#visitorName");
+      const noBtn  = $("[data-no]");
+      const yesBtn = $("[data-yes]");
 
       const noLabels = ["no 🐾", "no? 🥺", "you sure? 🙈", "pleaaase 💔", "wrong button 😤", "catch me 🏃‍♀️"];
       let noStep = 0;
