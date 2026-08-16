@@ -112,12 +112,11 @@
     }
     .blurb {
       margin: 12px auto 0;
-      max-width: 40ch;
+      max-width: 42ch;
       line-height: 1.55;
       color: var(--ink-soft);
     }
 
-    /* Custom Batman & Hello Kitty illustration avatar */
     .avatar-img-wrap {
       width: 140px;
       height: 140px;
@@ -141,7 +140,6 @@
       line-height: 1;
     }
 
-    /* Subtle Name Bar on First Screen */
     .name-badge-input {
       display: inline-flex;
       align-items: center;
@@ -204,12 +202,12 @@
       width: 100%;
       margin-top: 22px;
     }
-    .btn-pay {
+    .btn-sign {
       background: linear-gradient(135deg, var(--magenta), var(--magenta-deep));
       box-shadow: 0 12px 26px -8px rgba(176, 1, 89, 0.65);
       width: 100%;
       margin-top: 22px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
     }
 
     .btn-no {
@@ -300,25 +298,36 @@
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--rose) 25%, transparent);
     }
 
-    .agreement {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+    /* Pinky Promise Contract Box */
+    .contract-box {
+      background: #fffbfa;
+      border: 2px dashed #f0cad5;
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
       text-align: left;
-      border: 1.5px solid var(--line);
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin-top: 24px;
     }
-    .agreement .terms { font-family: var(--display); font-weight: 700; color: var(--ink); font-size: 1.1rem; }
-    .agreement .terms small { display: block; font-family: var(--ui); font-weight: 600; color: var(--ink-soft); font-size: 0.78rem; margin-top: 4px; }
-    .agreement .price { font-family: var(--display); font-weight: 800; color: var(--magenta); font-size: 1.9rem; white-space: nowrap; }
+    .clause-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+    .clause-item:last-child {
+      margin-bottom: 0;
+    }
+    .clause-icon {
+      font-size: 1.1rem;
+      line-height: 1.2;
+    }
 
     .payoff h1 { margin-top: 10px; }
     .payoff .summary {
       margin: 18px auto 0;
-      max-width: 34ch;
+      max-width: 36ch;
       line-height: 1.6;
       color: var(--ink-soft);
     }
@@ -360,13 +369,11 @@
       <!-- SCREEN 1 — The Ask -->
       <section class="screen is-active" data-screen="ask" aria-label="The question">
         <div class="avatar-img-wrap">
-          <!-- Relative path to your uploaded image or hosted asset -->
-          <img src="./couple.jpeg" alt="Batman and Hello Kitty" />
+          <img src="./couple.jpeg" alt="Batman and Hello Kitty" onerror="this.onerror=null; this.src='https://i.pinimg.com/736x/8b/62/1f/8b621f37cbdb7fcbebbbe08c7ba2dc2b.jpg';" />
         </div>
         
         <h1>🌸 Will you go on a date with me? 🌸</h1>
 
-        <!-- Non-intrusive cute name field -->
         <div class="name-badge-input">
           <span>✨</span>
           <input type="text" id="visitorName" placeholder="Your name or nickname..." maxlength="30" />
@@ -421,31 +428,37 @@
         <button type="button" class="btn btn-primary" data-lock hidden>lock it in 🍴</button>
       </section>
 
-      <!-- SCREEN 4 — Payment Punchline -->
-      <section class="screen" data-screen="pay" aria-label="One small fee">
-        <div class="glyph" aria-hidden="true">💳</div>
-        <h1>one small fee</h1>
+      <!-- SCREEN 4 — Official Pinky Promise Terms -->
+      <section class="screen" data-screen="contract" aria-label="Pinky Promise Contract">
+        <div class="glyph" aria-hidden="true">📜✨</div>
+        <h1>The Official Pinky Promise™</h1>
         <p class="blurb">
-          to confirm your acceptance of this date, please complete the following
-          transaction. totally normal. everyone does this.
+          Before we lock this in, you must formally agree to the standard date protocols:
         </p>
 
-        <div class="agreement">
-          <span class="terms">
-            Date Agreement™
-            <small>one-time fee • non-refundable • absolutely worth it</small>
-          </span>
-          <span class="price">$499</span>
+        <div class="contract-box">
+          <div class="clause-item">
+            <span class="clause-icon">🍟</span>
+            <span><strong>Fry Tax:</strong> You may steal up to 40% of my fries without penalty.</span>
+          </div>
+          <div class="clause-item">
+            <span class="clause-icon">🎶</span>
+            <span><strong>Aux Cord Privileges:</strong> Valid aux control, but bad songs get skipped.</span>
+          </div>
+          <div class="clause-item">
+            <span class="clause-icon">🚗</span>
+            <span><strong>No Cancellations:</strong> Be ready on time, I'm picking you up.</span>
+          </div>
         </div>
 
-        <button type="button" class="btn btn-pay" data-pay>pay $499 &amp; confirm 💸</button>
-        <button type="button" class="textlink" data-goback>go back</button>
+        <button type="button" class="btn btn-sign" data-sign>I pinky promise &amp; seal the deal 🤙💖</button>
+        <button type="button" class="textlink" data-goback>change options</button>
       </section>
 
       <!-- SCREEN 5 — Confirmed Payoff -->
       <section class="screen payoff" data-screen="done" aria-label="Confirmed">
         <div class="glyph" aria-hidden="true">💖</div>
-        <h1>just kidding 💕</h1>
+        <h1>It’s Official! 💕</h1>
         <p class="summary" data-summary></p>
       </section>
 
@@ -602,25 +615,25 @@
         });
       });
 
-      lockBtn.addEventListener("click", () => showScreen("pay"));
+      lockBtn.addEventListener("click", () => showScreen("contract"));
 
-      /* Screen 4: Payment */
+      /* Screen 4: Pinky Promise Agreement */
       $("[data-goback]").addEventListener("click", () => showScreen("food"));
 
-      $("[data-pay]").addEventListener("click", () => {
+      $("[data-sign]").addEventListener("click", () => {
         confetti({
-          particleCount: 120,
-          spread: 80,
+          particleCount: 130,
+          spread: 85,
           origin: { y: 0.6 }
         });
 
         $("[data-summary]").innerHTML =
-          `you already said yes${state.name !== "Someone special" ? ", " + state.name : ""} — that's the only payment I needed 💕<br><br>` +
-          "see you <strong>" + state.day + "</strong> at <strong>" + state.time +
-          "</strong> for <strong>" + state.food + "</strong>. it's a date! 🥂";
+          `Contract sealed by <strong>${state.name}</strong> 🤙💕<br><br>` +
+          "See you <strong>" + state.day + "</strong> at <strong>" + state.time +
+          "</strong> for <strong>" + state.food + "</strong>. Don't forget your pinky promise! 🥂🚗";
         
         showScreen("done");
-        sendNotification(`🎉 Date Confirmed & $499 Paid by ${state.name}!`, "Completed full date agreement flow.", true);
+        sendNotification(`🎉 Pinky Promise Sealed by ${state.name}!`, "Completed date scheduling and pinky promise agreement.", true);
       });
     })();
   </script>
