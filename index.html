@@ -1,749 +1,367 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Will you go on a date with me?</title>
-
-  <!-- Display + UI type -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Nunito:wght@400;600;700;800&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- Confetti Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+  <title>Maurya Photo Framing (मौर्या फोटो फ्रेमिंग) | Sunil Maurya</title>
   <style>
-    /* ---------- Design tokens ---------- */
     :root {
-      --bg-top:       #fdeef2;
-      --bg-bottom:    #f3e6f6;
-      --card:         #ffffff;
-      --ink:          #6e2a3c;
-      --ink-soft:     #8a5563;
-      --rose:         #e07a9c;
-      --rose-deep:    #cf5f85;
-      --lavender:     #b9a8e0;
-      --lavender-ink: #4a3a6b;
-      --magenta:      #d6006e;
-      --magenta-deep: #b00159;
-      --line:         #f0dbe4;
-      --focus:        #7a3ce0;
-
-      --display: "Playfair Display", Georgia, "Times New Roman", serif;
-      --ui: "Nunito", ui-rounded, "Segoe UI", system-ui, sans-serif;
-
-      --radius-card: 26px;
-      --radius-pill: 999px;
-      --radius-input: 14px;
-      --shadow-card: 0 24px 60px -20px rgba(110, 42, 60, 0.28);
-      --shadow-pill: 0 10px 22px -8px rgba(207, 95, 133, 0.6);
+      --primary: #8b2500;       /* Rich Indian Rust/Maroon */
+      --secondary: #d97706;     /* Warm Amber/Gold */
+      --dark: #231f20;
+      --bg-light: #fffdfa;
+      --card-bg: #ffffff;
+      --whatsapp: #25d366;
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
 
     body {
-      margin: 0;
-      font-family: var(--ui);
-      color: var(--ink-soft);
-      background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
-      background-attachment: fixed;
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      -webkit-font-smoothing: antialiased;
+      background-color: var(--bg-light);
+      color: #333;
+      line-height: 1.6;
     }
 
-    .petal {
-      position: fixed;
-      font-size: 20px;
-      opacity: 0.5;
-      pointer-events: none;
-      user-select: none;
-      animation: drift 14s ease-in-out infinite;
-      z-index: 0;
-    }
-    @keyframes drift {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50%      { transform: translateY(-18px) rotate(12deg); }
-    }
-
-    .stage {
-      position: relative;
-      z-index: 1;
-      width: min(560px, 100%);
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-card);
-      padding: 40px 36px;
+    /* Top Announcement Bar */
+    .top-bar {
+      background-color: var(--primary);
+      color: #fff;
       text-align: center;
-    }
-
-    .screen { display: none; }
-    .screen.is-active {
-      display: block;
-      animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 {
-      font-family: var(--display);
-      color: var(--ink);
-      font-weight: 800;
-      line-height: 1.15;
-      margin: 14px 0 6px;
-      font-size: clamp(1.55rem, 5vw, 2.1rem);
-    }
-    .subtitle {
-      margin: 4px 0 0;
-      font-size: 0.98rem;
-      color: var(--ink-soft);
-    }
-    .blurb {
-      margin: 12px auto 0;
-      max-width: 42ch;
-      line-height: 1.55;
-      color: var(--ink-soft);
-    }
-
-    .avatar-img-wrap {
-      width: 140px;
-      height: 140px;
-      margin: 0 auto 10px;
-      border-radius: 24px;
-      display: grid;
-      place-items: center;
-      background: #ffffff;
-      padding: 8px;
-      box-shadow: 0 10px 25px rgba(110, 42, 60, 0.08);
-      border: 1px solid var(--line);
-    }
-    .avatar-img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .glyph {
-      font-size: 34px;
-      line-height: 1;
-    }
-
-    .name-badge-input {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #faf4f6;
-      border: 1.5px dashed var(--rose);
-      border-radius: var(--radius-pill);
-      padding: 6px 16px;
-      margin: 12px auto 4px;
-      max-width: 250px;
-      transition: border-color 0.2s, background-color 0.2s;
-    }
-    .name-badge-input.error {
-      border-color: #d6006e;
-      background: #fff0f3;
-      animation: shake 0.3s ease;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-    .name-badge-input:focus-within {
-      border-color: var(--rose-deep);
-      background: #ffffff;
-      border-style: solid;
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--rose) 25%, transparent);
-    }
-    .name-badge-input span {
+      padding: 6px 12px;
       font-size: 0.9rem;
-    }
-    .name-badge-input input {
-      border: none;
-      outline: none;
-      background: transparent;
-      font-family: var(--ui);
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--ink);
-      width: 100%;
-      text-align: center;
-    }
-    .name-badge-input input::placeholder {
-      color: #b5929d;
       font-weight: 500;
     }
 
-    .name-warning {
-      color: #d6006e;
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-top: 4px;
-      min-height: 1.2em;
+    /* Header */
+    header {
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    /* Buttons */
-    .btn {
-      font-family: var(--ui);
-      font-weight: 800;
-      border: none;
-      cursor: pointer;
-      border-radius: var(--radius-pill);
-      padding: 15px 34px;
-      font-size: 1.05rem;
-      color: #fff;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
-    }
-    .btn:hover { filter: brightness(1.04); transform: translateY(-1px); }
-    .btn:active { transform: translateY(0) scale(0.98); }
-
-    .btn-yes {
-      background: linear-gradient(135deg, var(--rose), var(--rose-deep));
-      box-shadow: var(--shadow-pill);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #f3aac1, var(--rose-deep));
-      box-shadow: var(--shadow-pill);
-      width: 100%;
-      margin-top: 22px;
-    }
-    .btn-sign {
-      background: linear-gradient(135deg, var(--magenta), var(--magenta-deep));
-      box-shadow: 0 12px 26px -8px rgba(176, 1, 89, 0.65);
-      width: 100%;
-      margin-top: 22px;
-      font-size: 1.05rem;
-    }
-
-    .btn-no {
-      background: linear-gradient(135deg, #c9b8ec, var(--lavender));
-      color: var(--lavender-ink);
-      box-shadow: 0 8px 18px -8px rgba(74, 58, 107, 0.5);
-      z-index: 20;
-    }
-    .btn-no.is-loose { position: fixed; }
-
-    .choice-row {
+    nav {
+      max-width: 1100px;
+      margin: auto;
+      padding: 0.8rem 1.2rem;
       display: flex;
-      gap: 16px;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      margin-top: 14px;
-      min-height: 60px;
       flex-wrap: wrap;
     }
 
-    .textlink {
-      display: inline-block;
-      margin-top: 16px;
-      background: none;
-      border: none;
-      color: var(--ink-soft);
-      font-family: var(--ui);
-      font-size: 0.95rem;
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .textlink:hover { color: var(--ink); }
-
-    .field { text-align: left; margin-top: 20px; }
-    .field label {
-      display: block;
-      font-weight: 800;
-      color: var(--ink);
-      margin-bottom: 8px;
-      font-size: 1rem;
-    }
-    .field input,
-    .field select {
-      width: 100%;
-      font-family: var(--ui);
-      font-size: 1rem;
-      color: var(--ink);
-      padding: 14px 16px;
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-input);
-      background: #fff;
-    }
-    .field input:focus,
-    .field select:focus {
-      outline: 3px solid color-mix(in srgb, var(--focus) 35%, transparent);
-      border-color: var(--rose);
-    }
-    .hint {
-      margin: 12px 0 0;
-      min-height: 1.2em;
-      color: var(--rose-deep);
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    .food-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-top: 24px;
-    }
-    .food {
-      border: 2px solid var(--line);
-      background: #fff;
-      border-radius: 18px;
-      padding: 18px 8px 14px;
-      cursor: pointer;
-      font-family: var(--ui);
-      transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .food:hover { transform: translateY(-3px); box-shadow: 0 12px 22px -14px rgba(110,42,60,0.4); }
-    .food:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 40%, transparent); }
-    .food .emoji { font-size: 34px; display: block; }
-    .food .name { display: block; margin-top: 8px; font-weight: 700; color: var(--ink); }
-    .food[aria-pressed="true"] {
-      border-color: var(--rose-deep);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--rose) 25%, transparent);
-    }
-
-    .contract-box {
-      background: #fffbfa;
-      border: 2px dashed #f0cad5;
-      border-radius: 20px;
-      padding: 20px;
-      margin-top: 20px;
-      text-align: left;
-    }
-    .clause-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 12px;
-      font-size: 0.92rem;
-      line-height: 1.4;
-      color: var(--ink);
-    }
-    .clause-item:last-child {
-      margin-bottom: 0;
-    }
-    .clause-icon {
-      font-size: 1.1rem;
+    .brand h1 {
+      font-size: 1.4rem;
+      color: var(--primary);
       line-height: 1.2;
     }
 
-    .payoff h1 { margin-top: 10px; }
-    .payoff .summary {
-      margin: 18px auto 0;
-      max-width: 36ch;
-      line-height: 1.6;
-      color: var(--ink-soft);
-    }
-    .payoff .summary strong { color: var(--ink); }
-
-    .foot {
-      margin-top: 22px;
-      text-align: center;
+    .brand span {
       font-size: 0.85rem;
-      color: color-mix(in srgb, var(--ink-soft) 70%, transparent);
-      position: relative;
-      z-index: 1;
+      color: #666;
+      display: block;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.001ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.001ms !important;
-      }
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
 
-    @media (max-width: 420px) {
-      .card { padding: 30px 22px; }
-      .food-grid { gap: 10px; }
-      .food .emoji { font-size: 28px; }
+    .btn-call {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                  url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=80') center/cover;
+      color: #fff;
+      text-align: center;
+      padding: 3.5rem 1rem;
+    }
+
+    .hero h2 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      color: #ffd700;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      max-width: 650px;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-wa {
+      background: var(--whatsapp);
+      color: #fff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Container & Headings */
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 3rem 1.2rem;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.8rem;
+      color: var(--primary);
+    }
+
+    .section-title p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Grid Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid #eee;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .card h3 {
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    /* Info Badge Box */
+    .timing-box {
+      background: #fff8e7;
+      border-left: 5px solid var(--secondary);
+      padding: 1.2rem;
+      margin: 2rem 0;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .timing-box h4 {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Contact Form Box */
+    .form-container {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 550px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.65rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--whatsapp);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    footer p {
+      margin: 0.3rem 0;
     }
   </style>
 </head>
 <body>
-  <span class="petal" style="top:12%; left:8%;  animation-delay:0s;">🌸</span>
-  <span class="petal" style="top:70%; left:14%; animation-delay:2s;">🌷</span>
-  <span class="petal" style="top:22%; right:10%; animation-delay:1s;">🌺</span>
-  <span class="petal" style="top:78%; right:12%; animation-delay:3s;">💗</span>
 
-  <main class="stage">
-    <div class="card">
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    दुकान सातों दिन खुली है (Open 7 Days): 9:30 AM - 7:00 PM | संपर्क करें: +91 9451125558
+  </div>
 
-      <!-- SCREEN 1 — The Ask -->
-      <section class="screen is-active" data-screen="ask" aria-label="The question">
-        <div class="avatar-img-wrap">
-          <img src="./couple.jpeg" alt="Batman and Hello Kitty" onerror="this.onerror=null; this.src='https://i.pinimg.com/736x/8b/62/1f/8b621f37cbdb7fcbebbbe08c7ba2dc2b.jpg';" />
-        </div>
-        
-        <h1>🌸 Will you go on a date with me? 🌸</h1>
+  <!-- Header -->
+  <header>
+    <nav>
+      <div class="brand">
+        <h1>Maurya Photo Framing</h1>
+        <span>मौर्या फोटो फ्रेमिंग &bull; प्रो. सुनील मौर्या</span>
+      </div>
+      <div class="nav-actions">
+        <a href="tel:9451125558" class="btn-call">कॉल करें</a>
+        <a href="https://wa.me/919451125558" target="_blank" class="btn-wa">व्हाट्सएप</a>
+      </div>
+    </nav>
+  </header>
 
-        <!-- Mandatory Name Input -->
-        <div class="name-badge-input" id="nameBox">
-          <span>✨</span>
-          <input type="text" id="visitorName" placeholder="Enter your name first..." maxlength="30" autocomplete="off" />
-        </div>
-        <p class="name-warning" id="nameWarning" aria-live="polite"></p>
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>अपनी यादों को दें एक नया रूप</h2>
+    <p>हमारे यहाँ शादी, भगवान की तस्वीरें, फैंसी वॉल आर्ट और कस्टमाइज़्ड फोटो फ्रेमिंग का काम उचित मूल्य पर किया जाता है।</p>
+    <div class="cta-buttons">
+      <a href="tel:9451125558" class="btn-call" style="padding: 10px 20px;">अभी कॉल करें</a>
+      <a href="https://wa.me/919451125558?text=नमस्ते%20सुनील%20जी,%20मुझे%20फोटो%20फ्रेमिंग%20करवानी%20है।" target="_blank" class="btn-wa">WhatsApp पर रेट पूछें</a>
+    </div>
+  </section>
 
-        <div class="choice-row">
-          <button type="button" class="btn btn-yes" data-yes>Yes ♥</button>
-          <button type="button" class="btn btn-no" data-no>no 🐾</button>
-        </div>
-      </section>
-
-      <!-- SCREEN 2 — Scheduling -->
-      <section class="screen" data-screen="when" aria-label="Pick a date and time">
-        <div class="glyph" aria-hidden="true">📅🐾</div>
-        <h1>So... when are you free?</h1>
-
-        <div class="field">
-          <label for="day">Pick a day 📅</label>
-          <input type="date" id="day" />
-        </div>
-
-        <div class="field">
-          <label for="time">What time? ⏰</label>
-          <select id="time">
-            <option value="" selected disabled>Select a time…</option>
-            <option value="Brunch 🥐 (11 AM)">Brunch 🥐 (11 AM)</option>
-            <option value="Coffee ☕ (2 PM)">Coffee ☕ (2 PM)</option>
-            <option value="Golden hour 🌇 (5 PM)">Golden hour 🌇 (5 PM)</option>
-            <option value="Dinner 🍷 (7 PM)">Dinner 🍷 (7 PM)</option>
-            <option value="Late night 🌙 (10 PM)">Late night 🌙 (10 PM)</option>
-          </select>
-        </div>
-
-        <p class="hint" data-when-hint aria-live="polite"></p>
-        <button type="button" class="btn btn-primary" data-set-date>set the date! ♥</button>
-      </section>
-
-      <!-- SCREEN 3 — Food Vibe -->
-      <section class="screen" data-screen="food" aria-label="Pick a food">
-        <h1>What are we feeling? 🍽️✨</h1>
-        <p class="subtitle">pick your vibe</p>
-
-        <div class="food-grid" role="group" aria-label="Food options">
-          <button type="button" class="food" data-food="Pizza 🍕"><span class="emoji">🍕</span><span class="name">Pizza</span></button>
-          <button type="button" class="food" data-food="Sushi 🍣"><span class="emoji">🍣</span><span class="name">Sushi</span></button>
-          <button type="button" class="food" data-food="Burgers 🍔"><span class="emoji">🍔</span><span class="name">Burgers</span></button>
-          <button type="button" class="food" data-food="Pasta 🍝"><span class="emoji">🍝</span><span class="name">Pasta</span></button>
-          <button type="button" class="food" data-food="Tacos 🌮"><span class="emoji">🌮</span><span class="name">Tacos</span></button>
-          <button type="button" class="food" data-food="Ramen 🍜"><span class="emoji">🍜</span><span class="name">Ramen</span></button>
-        </div>
-
-        <button type="button" class="btn btn-primary" data-lock hidden>lock it in 🍴</button>
-      </section>
-
-      <!-- SCREEN 4 — Official Pinky Promise Terms -->
-      <section class="screen" data-screen="contract" aria-label="Pinky Promise Contract">
-        <div class="glyph" aria-hidden="true">📜✨</div>
-        <h1>The Official Pinky Promise™</h1>
-        <p class="blurb">
-          Before we lock this in, you must formally agree to the standard date protocols:
-        </p>
-
-        <div class="contract-box">
-          <div class="clause-item">
-            <span class="clause-icon">🍟</span>
-            <span><strong>Fry Tax:</strong> You may steal up to 40% of my fries without penalty.</span>
-          </div>
-          <div class="clause-item">
-            <span class="clause-icon">🎶</span>
-            <span><strong>Aux Cord Privileges:</strong> Valid aux control, but bad songs get skipped.</span>
-          </div>
-          <div class="clause-item">
-            <span class="clause-icon">🚗</span>
-            <span><strong>No Cancellations:</strong> Be ready on time, I'm picking you up.</span>
-          </div>
-        </div>
-
-        <button type="button" class="btn btn-sign" data-sign>I pinky promise &amp; seal the deal 🤙💖</button>
-        <button type="button" class="textlink" data-goback>change options</button>
-      </section>
-
-      <!-- SCREEN 5 — Confirmed Payoff -->
-      <section class="screen payoff" data-screen="done" aria-label="Confirmed">
-        <div class="glyph" aria-hidden="true">💖</div>
-        <h1>It’s Official! 💕</h1>
-        <p class="summary" data-summary></p>
-      </section>
-
+  <!-- Services -->
+  <section class="container">
+    <div class="section-title">
+      <h2>हमारी सेवाएं (Our Services)</h2>
+      <p>हर प्रकार की फोटो और आर्ट के लिए मजबूत व आकर्षक फ्रेम</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>पारिवारिक व शादी के फ्रेम</h3>
+        <p>फैमिली फोटो, शादी और सालगिरह की यादों के लिए प्रीमियम क्लासिक और लेमिनेशन फ्रेमिंग।</p>
+      </div>
+      <div class="card">
+        <h3>भगवान के चित्र व धार्मिक फ्रेम</h3>
+        <p>मंदिर और घर की पूजा के लिए उच्च गुणवत्ता वाले नक्काशीदार और गोल्डन बॉर्डर फ्रेम।</p>
+      </div>
+      <div class="card">
+        <h3>कैनवास & पोस्टर फ्रेमिंग</h3>
+        <p>आर्ट गैलरी, सीनरी, ऑफिस पोस्टर और वॉल कोलाज के लिए आधुनिक फाइबर व वुडन फ्रेम।</p>
+      </div>
+      <div class="card">
+        <h3>सर्टिफिकेट & डिप्लोमा फ्रेम</h3>
+        <p>स्कूल, कॉलेज व ऑफिस के प्रमाण पत्र सुरक्षित रखने के लिए सिंपल और टिकाऊ फ्रेम।</p>
+      </div>
     </div>
 
-    <p class="foot">made with 💕</p>
-  </main>
+    <!-- Timing Box -->
+    <div class="timing-box">
+      <h4>दुकान का समय (Store Timings)</h4>
+      <p><strong>सोमवार से रविवार (सातों दिन):</strong> सुबह 9:30 बजे से शाम 7:00 बजे तक</p>
+    </div>
+  </section>
 
+  <!-- WhatsApp Order / Inquiry Form -->
+  <section class="container" style="background-color: #f7f5f0; border-radius: 8px;">
+    <div class="section-title">
+      <h2>फ्रेमिंग के लिए ऑर्डर या पूछताछ करें</h2>
+      <p>अपनी पसंद बताएं, सीधे व्हाट्सएप पर कोटेशन पाएं</p>
+    </div>
+    <div class="form-container">
+      <form id="quoteForm">
+        <div class="form-group">
+          <label for="custName">आपका नाम (Your Name)</label>
+          <input type="text" id="custName" required placeholder="उदा. राहुल कुमार" />
+        </div>
+        <div class="form-group">
+          <label for="frameType">फ्रेम का प्रकार (Frame Type)</label>
+          <select id="frameType">
+            <option value="गोल्डन/नक्काशीदार फ्रेम">गोल्डन / नक्काशीदार (Golden / Fancy)</option>
+            <option value="मॉडर्न ब्लैक/ब्राउन फ्रेम">मॉडर्न ब्लैक / वुडन (Black / Wood Finish)</option>
+            <option value="ग्लास एवं लेमिनेशन फ्रेम">ग्लास एवं लेमिनेशन (Lamination Frame)</option>
+            <option value="कैनवास/सीनरी फ्रेम">कैनवास / सीनरी (Canvas Framing)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="frameSize">फोटो का साइज (Approx Size)</label>
+          <input type="text" id="frameSize" placeholder="उदा. 12x18 इंच, 8x12 इंच" />
+        </div>
+        <button type="submit" class="btn-submit">WhatsApp पर मैसेज भेजें</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p><strong>Maurya Photo Framing (मौर्या फोटो फ्रेमिंग)</strong></p>
+    <p>प्रोपराइटर: <strong>सुनील मौर्या</strong> | मोबाइल: <strong>9451125558</strong></p>
+    <p>खुलने का समय: 9:30 AM - 7:00 PM (सातों दिन)</p>
+    <p style="margin-top: 10px; color: #aaa; font-size: 0.8rem;">&copy; 2026 Maurya Photo Framing. All rights reserved.</p>
+  </footer>
+
+  <!-- Script to send form details directly to Sunil Maurya's WhatsApp -->
   <script>
-    (function () {
-      "use strict";
+    document.getElementById('quoteForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('custName').value;
+      const type = document.getElementById('frameType').value;
+      const size = document.getElementById('frameSize').value || 'साइज तय नहीं';
 
-      const DISCORD_WEBHOOK_URLS = [
-        "https://discord.com/api/webhooks/1539319682312445962/B1ZhIgiixXcZpmVFblPVs5fHDxNon3aYu_OZ9Nv4kbpGYferxVXyGGybvrmPHbfIbQ29"
-      ];
-
-      const $  = (sel, root = document) => root.querySelector(sel);
-      const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-
-      // 1. Persistent Unique Device ID
-      let visitorId = localStorage.getItem("date_site_visitor_id");
-      if (!visitorId) {
-        visitorId = "User_" + Math.random().toString(36).substring(2, 9).toUpperCase();
-        localStorage.setItem("date_site_visitor_id", visitorId);
-      }
-
-      // 2. Client & Environment Metadata
-      const clientMetadata = {
-        visitorId: visitorId,
-        screen: `${window.screen.width}x${window.screen.height}`,
-        device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "📱 Mobile" : "💻 Desktop",
-        os: getOS(),
-        referrer: document.referrer || "Direct / Chat App",
-        ip: "Fetching...",
-        location: "Fetching..."
-      };
-
-      function getOS() {
-        const ua = navigator.userAgent;
-        if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
-        if (/Android/i.test(ua)) return "Android";
-        if (/Mac/i.test(ua)) return "macOS";
-        if (/Win/i.test(ua)) return "Windows";
-        return "Unknown OS";
-      }
-
-      // 3. Fetch approximate City & IP (Non-blocking)
-      fetch("https://ipapi.co/json/")
-        .then(res => res.json())
-        .then(data => {
-          clientMetadata.ip = data.ip || "Unknown";
-          clientMetadata.location = `${data.city || ""}, ${data.region || ""}, ${data.country_name || ""}`.trim();
-        })
-        .catch(() => {
-          clientMetadata.ip = "Unavailable";
-          clientMetadata.location = "Unavailable";
-        });
-
-      // 4. Capture Custom Link Parameter vs User Entered Input
-      const urlParams = new URLSearchParams(window.location.search);
-      const targetParam = urlParams.get("for") || urlParams.get("name") || "None (Direct/Generic Link)";
-
-      const nameInput   = $("#visitorName");
-      const nameBox     = $("#nameBox");
-      const nameWarning = $("#nameWarning");
-
-      const state = { 
-        targetedName: targetParam,
-        enteredName: "",
-        fullDateFormatted: "",
-        isoDate: "",
-        time: "", 
-        food: "" 
-      };
-
-      async function sendNotification(title, description, isFinal = false) {
-        const fields = [
-          { name: "🔗 Target Link Name (?for=)", value: state.targetedName, inline: true },
-          { name: "✍️ User Entered Name", value: state.enteredName || "Not entered yet", inline: true },
-          { name: "🆔 Visitor ID", value: clientMetadata.visitorId, inline: true },
-          { name: "📍 Location", value: clientMetadata.location, inline: true },
-          { name: "🌐 IP Address", value: clientMetadata.ip, inline: true },
-          { name: "📱 Device / OS", value: `${clientMetadata.device} (${clientMetadata.os})`, inline: true }
-        ];
-
-        if (state.fullDateFormatted) {
-          fields.push({ name: "📅 Selected Full Date", value: `${state.fullDateFormatted} (${state.isoDate})`, inline: false });
-        }
-        if (state.time) {
-          fields.push({ name: "⏰ Selected Time", value: state.time, inline: true });
-        }
-        if (state.food) {
-          fields.push({ name: "🍽️ Food Choice", value: state.food, inline: true });
-        }
-
-        const payload = {
-          username: "Date Proposal Alert 💌",
-          embeds: [
-            {
-              title: title,
-              description: description,
-              color: isFinal ? 0xd6006e : 0xe07a9c,
-              fields: fields,
-              footer: { text: `Screen: ${clientMetadata.screen} • Link Target: ${state.targetedName}` },
-              timestamp: new Date().toISOString()
-            }
-          ]
-        };
-
-        const requests = DISCORD_WEBHOOK_URLS
-          .filter(url => url && !url.includes("PASTE_SECOND"))
-          .map(url =>
-            fetch(url, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
-            }).catch(err => console.error(`Webhook error for ${url}:`, err))
-          );
-
-        await Promise.allSettled(requests);
-      }
-
-      const screens = $$("[data-screen]");
-      function showScreen(name) {
-        screens.forEach((s) => s.classList.toggle("is-active", s.dataset.screen === name));
-        const active = screens.find((s) => s.dataset.screen === name);
-        const heading = active && active.querySelector("h1");
-        if (heading) {
-          heading.setAttribute("tabindex", "-1");
-          heading.focus({ preventScroll: true });
-        }
-      }
-
-      /* Screen 1: Runaway No */
-      const noBtn  = $("[data-no]");
-      const yesBtn = $("[data-yes]");
-
-      const noLabels = ["no 🐾", "no? 🥺", "you sure? 🙈", "pleaaase 💔", "wrong button 😤", "catch me 🏃‍♀️"];
-      let noStep = 0;
-      let yesScale = 1;
-
-      function dodge() {
-        noBtn.classList.add("is-loose");
-
-        const pad = 16;
-        const w = noBtn.offsetWidth;
-        const h = noBtn.offsetHeight;
-        const maxX = Math.max(pad, window.innerWidth  - w - pad);
-        const maxY = Math.max(pad, window.innerHeight - h - pad);
-
-        const prev = noBtn.getBoundingClientRect();
-        let x = pad, y = pad;
-        for (let i = 0; i < 8; i++) {
-          x = pad + Math.random() * (maxX - pad);
-          y = pad + Math.random() * (maxY - pad);
-          if (Math.hypot(x - prev.left, y - prev.top) > 140) break;
-        }
-        noBtn.style.left = x + "px";
-        noBtn.style.top  = y + "px";
-
-        noStep = (noStep + 1) % noLabels.length;
-        noBtn.textContent = noLabels[noStep];
-        yesScale = Math.min(yesScale + 0.06, 1.6);
-        yesBtn.style.transform = "scale(" + yesScale + ")";
-      }
-
-      noBtn.addEventListener("mouseenter", dodge);
-      noBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); dodge(); });
-      noBtn.addEventListener("click", (e) => { e.preventDefault(); dodge(); });
-      noBtn.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dodge(); }
-      });
-
-      // Mandatory Name Validation before proceeding
-      yesBtn.addEventListener("click", () => {
-        const entered = nameInput.value.trim();
-        if (!entered) {
-          nameBox.classList.add("error");
-          nameWarning.textContent = "Please enter your name first! 🥺💖";
-          nameInput.focus();
-          setTimeout(() => nameBox.classList.remove("error"), 600);
-          return;
-        }
-
-        nameWarning.textContent = "";
-        state.enteredName = entered;
-
-        noBtn.classList.remove("is-loose");
-        noBtn.style.cssText = "";
-        yesBtn.style.transform = "";
-        showScreen("when");
-        sendNotification(`✨ ${state.enteredName} clicked YES!`, `Link was sent for: **${state.targetedName}**`);
-      });
-
-      nameInput.addEventListener("input", () => {
-        if (nameInput.value.trim()) {
-          nameWarning.textContent = "";
-          nameBox.classList.remove("error");
-        }
-      });
-
-      /* Screen 2: Scheduling & Comprehensive Date Parsing */
-      const dayInput  = $("#day");
-      const timeInput = $("#time");
-      const whenHint  = $("[data-when-hint]");
-
-      dayInput.min = new Date().toISOString().split("T")[0];
-
-      $("[data-set-date]").addEventListener("click", () => {
-        if (!dayInput.value || !timeInput.value) {
-          whenHint.textContent = "pick a day and a time first 🥺";
-          return;
-        }
-        whenHint.textContent = "";
-        
-        // Capture Year, Month, Day, Weekday
-        state.isoDate = dayInput.value; // YYYY-MM-DD
-        const [year, month, day] = dayInput.value.split("-").map(Number);
-        const dateObj = new Date(year, month - 1, day);
-
-        state.fullDateFormatted = dateObj.toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric"
-        }); // e.g., "Friday, August 21, 2026"
-
-        state.time = timeInput.value;
-        showScreen("food");
-      });
-
-      /* Screen 3: Food */
-      const foods   = $$("[data-food]");
-      const lockBtn = $("[data-lock]");
-
-      foods.forEach((btn) => {
-        btn.setAttribute("aria-pressed", "false");
-        btn.addEventListener("click", () => {
-          foods.forEach((f) => f.setAttribute("aria-pressed", "false"));
-          btn.setAttribute("aria-pressed", "true");
-          state.food = btn.dataset.food;
-          lockBtn.hidden = false;
-        });
-      });
-
-      lockBtn.addEventListener("click", () => showScreen("contract"));
-
-      /* Screen 4: Pinky Promise Agreement */
-      $("[data-goback]").addEventListener("click", () => showScreen("food"));
-
-      $("[data-sign]").addEventListener("click", () => {
-        confetti({
-          particleCount: 130,
-          spread: 85,
-          origin: { y: 0.6 }
-        });
-
-        $("[data-summary]").innerHTML =
-          `Contract sealed by <strong>${state.enteredName}</strong> 🤙💕<br><br>` +
-          "See you on <strong>" + state.fullDateFormatted + "</strong> at <strong>" + state.time +
-          "</strong> for <strong>" + state.food + "</strong>. Don't forget your pinky promise! 🥂🚗";
-        
-        showScreen("done");
-        sendNotification(`🎉 Pinky Promise Sealed by ${state.enteredName}!`, `Completed date scheduling flow for target: **${state.targetedName}**`, true);
-      });
-    })();
+      const message = `नमस्ते सुनील जी, मेरा नाम ${name} है। मुझे "${type}" (साइज: ${size}) की फोटो फ्रेमिंग करवानी है। कृपया रेट और डिटेल बताएं।`;
+      const whatsappURL = `https://wa.me/919451125558?text=${encodeURIComponent(message)}`;
+      
+      window.open(whatsappURL, '_blank');
+    });
   </script>
+
 </body>
 </html>
