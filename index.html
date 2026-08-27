@@ -1,367 +1,645 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maurya Photo Framing (मौर्या फोटो फ्रेमिंग) | Sunil Maurya</title>
-  <style>
-    :root {
-      --primary: #8b2500;       /* Rich Indian Rust/Maroon */
-      --secondary: #d97706;     /* Warm Amber/Gold */
-      --dark: #231f20;
-      --bg-light: #fffdfa;
-      --card-bg: #ffffff;
-      --whatsapp: #25d366;
-    }
+  <title>A Little Something For You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Alex+Brush&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+  <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    body {
-      background-color: var(--bg-light);
-      color: #333;
-      line-height: 1.6;
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f7ede8;
     }
 
-    /* Top Announcement Bar */
-    .top-bar {
-      background-color: var(--primary);
-      color: #fff;
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .scene.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* SCENE 1: ARCHERY */
+    #scene1 {
+      background: radial-gradient(circle at 65% 30%, #ffdbe4 0%, #fbf1ea 55%, #f6e6dc 100%);
+      cursor: crosshair;
+    }
+
+    .s1-header {
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1.4rem, 2.8vw, 2.3rem);
+      color: #93384e;
+      letter-spacing: 0.5px;
       text-align: center;
-      padding: 6px 12px;
-      font-size: 0.9rem;
-      font-weight: 500;
+      width: 100%;
     }
 
-    /* Header */
-    header {
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    .heart-target {
+      position: absolute;
+      top: 28%;
+      left: 65%;
+      width: 140px;
+      height: 140px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 35% 35%, #ff5287, #c90e44);
+      clip-path: path("M 70 25 C 70 25, 58 0, 35 0 C 15 0, 0 15, 0 35 C 0 65, 40 95, 70 125 C 100 95, 140 65, 140 35 C 140 15, 125 0, 105 0 C 82 0, 70 25, 70 25 Z");
+      filter: drop-shadow(0 0 40px rgba(229, 36, 94, 0.7));
+      animation: heartPulse 2.8s ease-in-out infinite alternate;
     }
 
-    nav {
-      max-width: 1100px;
-      margin: auto;
-      padding: 0.8rem 1.2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+    @keyframes heartPulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.96);
+        filter: drop-shadow(0 0 30px rgba(229, 36, 94, 0.55));
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.08);
+        filter: drop-shadow(0 0 65px rgba(255, 45, 115, 0.9));
+      }
     }
 
-    .brand h1 {
-      font-size: 1.4rem;
-      color: var(--primary);
-      line-height: 1.2;
+    .bow-container {
+      position: absolute;
+      bottom: 20%;
+      left: 20%;
+      width: 130px;
+      height: 130px;
+      transform-origin: center center;
     }
 
-    .brand span {
+    .bow-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .drag-hint {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cinzel', serif;
+      letter-spacing: 6px;
       font-size: 0.85rem;
-      color: #666;
-      display: block;
-    }
-
-    .nav-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .btn-call {
-      background: var(--primary);
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 4px;
-      text-decoration: none;
-      font-size: 0.9rem;
       font-weight: 600;
+      color: #7d6560;
+      animation: pulseText 2s ease-in-out infinite;
     }
 
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                  url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=80') center/cover;
-      color: #fff;
-      text-align: center;
-      padding: 3.5rem 1rem;
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.95; }
     }
 
-    .hero h2 {
-      font-size: 2.2rem;
-      margin-bottom: 0.5rem;
-      color: #ffd700;
-    }
-
-    .hero p {
-      font-size: 1.1rem;
-      max-width: 650px;
-      margin: 0 auto 1.5rem auto;
-    }
-
-    .cta-buttons {
+    /* SCENE 2: MAGENTA CARD */
+    #scene2 {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      background: radial-gradient(circle at center, #b80c47 0%, #680026 100%);
+      color: #ffffff;
+      text-align: center;
     }
 
-    .btn-wa {
-      background: var(--whatsapp);
-      color: #fff;
-      padding: 10px 20px;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: 600;
-      display: inline-flex;
+    .s2-content {
+      transform: scale(0.85);
+      opacity: 0;
+      transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #scene2.active .s2-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .s2-sub-top {
+      font-family: 'Alex Brush', cursive;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      margin-bottom: 10px;
+      color: #ffd8e2;
+    }
+
+    .s2-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      font-weight: 700;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+      margin-bottom: 25px;
+    }
+
+    .s2-underline {
+      width: 120px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.7);
+      margin: 0 auto 25px;
+    }
+
+    .s2-sub-bottom {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 1px;
+    }
+
+    /* SCENE 3: SPLIT LAYOUT TREE */
+    #scene3 {
+      background: radial-gradient(circle at 60% 50%, #fff7f4 0%, #faede5 50%, #ecdacf 100%);
+      display: flex;
+      flex-direction: row;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      padding: 0 6vw;
     }
 
-    /* Container & Headings */
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 3rem 1.2rem;
+    .s3-left-panel {
+      flex: 0 0 45%;
+      max-width: 500px;
+      z-index: 10;
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: all 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
     }
 
-    .section-title {
-      text-align: center;
-      margin-bottom: 2rem;
+    #scene3.active .s3-left-panel {
+      opacity: 1;
+      transform: translateX(0);
     }
 
-    .section-title h2 {
-      font-size: 1.8rem;
-      color: var(--primary);
+    .s3-lead {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+      color: #8c3b4f;
+      margin-bottom: 6px;
     }
 
-    .section-title p {
-      color: #666;
-      font-size: 1rem;
+    .s3-title {
+      font-family: 'Alex Brush', cursive;
+      font-size: clamp(3.6rem, 6.5vw, 5.8rem);
+      color: #8c0032;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      text-shadow: 0 4px 15px rgba(140, 0, 50, 0.1);
     }
 
-    /* Grid Cards */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
+    .s3-desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+      color: #6d544e;
+      font-weight: 400;
+      letter-spacing: 0.3px;
     }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      border: 1px solid #eee;
-      padding: 1.5rem;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    .s3-right-panel {
+      flex: 0 0 55%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .card h3 {
-      color: var(--dark);
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
-
-    .card p {
-      font-size: 0.95rem;
-      color: #555;
-    }
-
-    /* Info Badge Box */
-    .timing-box {
-      background: #fff8e7;
-      border-left: 5px solid var(--secondary);
-      padding: 1.2rem;
-      margin: 2rem 0;
-      border-radius: 4px;
-      text-align: center;
-    }
-
-    .timing-box h4 {
-      color: var(--primary);
-      font-size: 1.2rem;
-      margin-bottom: 0.3rem;
-    }
-
-    /* Contact Form Box */
-    .form-container {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 2rem;
-      max-width: 550px;
-      margin: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
+    canvas#treeCanvas {
+      width: 100%;
+      height: 100%;
       display: block;
-      margin-bottom: 0.3rem;
-      font-weight: 600;
-      font-size: 0.95rem;
     }
 
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.65rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-
-    .btn-submit {
-      width: 100%;
-      background: var(--whatsapp);
-      color: white;
-      border: none;
-      padding: 0.8rem;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    /* Footer */
-    footer {
-      background: var(--dark);
-      color: #fff;
-      text-align: center;
-      padding: 2rem 1rem;
-      font-size: 0.9rem;
-    }
-
-    footer p {
-      margin: 0.3rem 0;
+    @media (max-width: 768px) {
+      #scene3 {
+        flex-direction: column-reverse;
+        justify-content: flex-end;
+        padding: 40px 20px;
+      }
+      .s3-left-panel {
+        flex: none;
+        max-width: 100%;
+        text-align: center;
+        margin-top: 10px;
+      }
+      .s3-right-panel {
+        flex: 1;
+        width: 100%;
+      }
+      .heart-target {
+        left: 50%;
+        top: 25%;
+      }
+      .bow-container {
+        left: 50%;
+        bottom: 15%;
+        transform: translateX(-50%);
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Announcement Bar -->
-  <div class="top-bar">
-    दुकान सातों दिन खुली है (Open 7 Days): 9:30 AM - 7:00 PM | संपर्क करें: +91 9451125558
+  <div id="app">
+    <!-- SCENE 1 -->
+    <div id="scene1" class="scene active">
+      <div class="s1-header">a little something, for you</div>
+      <div class="heart-target" id="heartTarget"></div>
+
+      <div class="bow-container" id="bowWrap">
+        <svg class="bow-svg" viewBox="0 0 100 100">
+          <path d="M 25 15 Q 55 50 25 85" fill="none" stroke="#442a22" stroke-width="4.5" stroke-linecap="round"/>
+          <line id="stringTop" x1="25" y1="15" x2="25" y2="50" stroke="#87756f" stroke-width="1.8"/>
+          <line id="stringBottom" x1="25" y1="85" x2="25" y2="50" stroke="#87756f" stroke-width="1.8"/>
+          <g id="arrowGroup">
+            <line x1="0" y1="50" x2="68" y2="50" stroke="#5a3d31" stroke-width="3" stroke-linecap="round"/>
+            <polygon points="68,46 78,50 68,54" fill="#a4193d" />
+            <polygon points="0,50 8,44 14,50" fill="#f0728f" />
+            <polygon points="0,50 8,56 14,50" fill="#f0728f" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="drag-hint">PULL & RELEASE</div>
+    </div>
+
+    <!-- SCENE 2 -->
+    <div id="scene2" class="scene">
+      <div class="s2-content">
+        <div class="s2-sub-top">make a wish...</div>
+        <h1 class="s2-title">Happy<br>Birthday</h1>
+        <div class="s2-underline"></div>
+        <div class="s2-sub-bottom">to someone worth celebrating</div>
+      </div>
+    </div>
+
+    <!-- SCENE 3 -->
+    <div id="scene3" class="scene">
+      <div class="s3-left-panel">
+        <div class="s3-lead">and... make it count</div>
+        <h2 class="s3-title">Happy Birthday</h2>
+        <div class="s3-desc">here's to a year that blooms ✨</div>
+      </div>
+      <div class="s3-right-panel" id="treeContainer">
+        <canvas id="treeCanvas"></canvas>
+      </div>
+    </div>
   </div>
 
-  <!-- Header -->
-  <header>
-    <nav>
-      <div class="brand">
-        <h1>Maurya Photo Framing</h1>
-        <span>मौर्या फोटो फ्रेमिंग &bull; प्रो. सुनील मौर्या</span>
-      </div>
-      <div class="nav-actions">
-        <a href="tel:9451125558" class="btn-call">कॉल करें</a>
-        <a href="https://wa.me/919451125558" target="_blank" class="btn-wa">व्हाट्सएप</a>
-      </div>
-    </nav>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <h2>अपनी यादों को दें एक नया रूप</h2>
-    <p>हमारे यहाँ शादी, भगवान की तस्वीरें, फैंसी वॉल आर्ट और कस्टमाइज़्ड फोटो फ्रेमिंग का काम उचित मूल्य पर किया जाता है।</p>
-    <div class="cta-buttons">
-      <a href="tel:9451125558" class="btn-call" style="padding: 10px 20px;">अभी कॉल करें</a>
-      <a href="https://wa.me/919451125558?text=नमस्ते%20सुनील%20जी,%20मुझे%20फोटो%20फ्रेमिंग%20करवानी%20है।" target="_blank" class="btn-wa">WhatsApp पर रेट पूछें</a>
-    </div>
-  </section>
-
-  <!-- Services -->
-  <section class="container">
-    <div class="section-title">
-      <h2>हमारी सेवाएं (Our Services)</h2>
-      <p>हर प्रकार की फोटो और आर्ट के लिए मजबूत व आकर्षक फ्रेम</p>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <h3>पारिवारिक व शादी के फ्रेम</h3>
-        <p>फैमिली फोटो, शादी और सालगिरह की यादों के लिए प्रीमियम क्लासिक और लेमिनेशन फ्रेमिंग।</p>
-      </div>
-      <div class="card">
-        <h3>भगवान के चित्र व धार्मिक फ्रेम</h3>
-        <p>मंदिर और घर की पूजा के लिए उच्च गुणवत्ता वाले नक्काशीदार और गोल्डन बॉर्डर फ्रेम।</p>
-      </div>
-      <div class="card">
-        <h3>कैनवास & पोस्टर फ्रेमिंग</h3>
-        <p>आर्ट गैलरी, सीनरी, ऑफिस पोस्टर और वॉल कोलाज के लिए आधुनिक फाइबर व वुडन फ्रेम।</p>
-      </div>
-      <div class="card">
-        <h3>सर्टिफिकेट & डिप्लोमा फ्रेम</h3>
-        <p>स्कूल, कॉलेज व ऑफिस के प्रमाण पत्र सुरक्षित रखने के लिए सिंपल और टिकाऊ फ्रेम।</p>
-      </div>
-    </div>
-
-    <!-- Timing Box -->
-    <div class="timing-box">
-      <h4>दुकान का समय (Store Timings)</h4>
-      <p><strong>सोमवार से रविवार (सातों दिन):</strong> सुबह 9:30 बजे से शाम 7:00 बजे तक</p>
-    </div>
-  </section>
-
-  <!-- WhatsApp Order / Inquiry Form -->
-  <section class="container" style="background-color: #f7f5f0; border-radius: 8px;">
-    <div class="section-title">
-      <h2>फ्रेमिंग के लिए ऑर्डर या पूछताछ करें</h2>
-      <p>अपनी पसंद बताएं, सीधे व्हाट्सएप पर कोटेशन पाएं</p>
-    </div>
-    <div class="form-container">
-      <form id="quoteForm">
-        <div class="form-group">
-          <label for="custName">आपका नाम (Your Name)</label>
-          <input type="text" id="custName" required placeholder="उदा. राहुल कुमार" />
-        </div>
-        <div class="form-group">
-          <label for="frameType">फ्रेम का प्रकार (Frame Type)</label>
-          <select id="frameType">
-            <option value="गोल्डन/नक्काशीदार फ्रेम">गोल्डन / नक्काशीदार (Golden / Fancy)</option>
-            <option value="मॉडर्न ब्लैक/ब्राउन फ्रेम">मॉडर्न ब्लैक / वुडन (Black / Wood Finish)</option>
-            <option value="ग्लास एवं लेमिनेशन फ्रेम">ग्लास एवं लेमिनेशन (Lamination Frame)</option>
-            <option value="कैनवास/सीनरी फ्रेम">कैनवास / सीनरी (Canvas Framing)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="frameSize">फोटो का साइज (Approx Size)</label>
-          <input type="text" id="frameSize" placeholder="उदा. 12x18 इंच, 8x12 इंच" />
-        </div>
-        <button type="submit" class="btn-submit">WhatsApp पर मैसेज भेजें</button>
-      </form>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <p><strong>Maurya Photo Framing (मौर्या फोटो फ्रेमिंग)</strong></p>
-    <p>प्रोपराइटर: <strong>सुनील मौर्या</strong> | मोबाइल: <strong>9451125558</strong></p>
-    <p>खुलने का समय: 9:30 AM - 7:00 PM (सातों दिन)</p>
-    <p style="margin-top: 10px; color: #aaa; font-size: 0.8rem;">&copy; 2026 Maurya Photo Framing. All rights reserved.</p>
-  </footer>
-
-  <!-- Script to send form details directly to Sunil Maurya's WhatsApp -->
   <script>
-    document.getElementById('quoteForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const name = document.getElementById('custName').value;
-      const type = document.getElementById('frameType').value;
-      const size = document.getElementById('frameSize').value || 'साइज तय नहीं';
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      const message = `नमस्ते सुनील जी, मेरा नाम ${name} है। मुझे "${type}" (साइज: ${size}) की फोटो फ्रेमिंग करवानी है। कृपया रेट और डिटेल बताएं।`;
-      const whatsappURL = `https://wa.me/919451125558?text=${encodeURIComponent(message)}`;
-      
-      window.open(whatsappURL, '_blank');
-    });
+    function playTone(freq, duration, type = 'sine') {
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    const bowWrap = document.getElementById('bowWrap');
+    const arrowGroup = document.getElementById('arrowGroup');
+    const stringTop = document.getElementById('stringTop');
+    const stringBottom = document.getElementById('stringBottom');
+    const heartTarget = document.getElementById('heartTarget');
+    const scene1 = document.getElementById('scene1');
+
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let pullDist = 0;
+    let arrowAngle = -35;
+
+    function updateBowOrientation() {
+      const bRect = bowWrap.getBoundingClientRect();
+      const hRect = heartTarget.getBoundingClientRect();
+      const dx = (hRect.left + hRect.width / 2) - (bRect.left + bRect.width / 2);
+      const dy = (hRect.top + hRect.height / 2) - (bRect.top + bRect.height / 2);
+      arrowAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+      bowWrap.style.transform = `rotate(${arrowAngle}deg)`;
+    }
+
+    window.addEventListener('resize', updateBowOrientation);
+    setTimeout(updateBowOrientation, 50);
+
+    function onPointerDown(e) {
+      isDragging = true;
+      const pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX;
+      startY = pt.clientY;
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const pt = e.touches ? e.touches[0] : e;
+      const dist = Math.hypot(pt.clientX - startX, pt.clientY - startY);
+      pullDist = Math.min(dist, 45);
+
+      arrowGroup.setAttribute('transform', `translate(${-pullDist}, 0)`);
+      stringTop.setAttribute('x2', `${25 - pullDist}`);
+      stringBottom.setAttribute('x2', `${25 - pullDist}`);
+    }
+
+    function onPointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+
+      if (pullDist > 10) {
+        shoot();
+      } else {
+        arrowGroup.setAttribute('transform', 'translate(0, 0)');
+        stringTop.setAttribute('x2', '25');
+        stringBottom.setAttribute('x2', '25');
+      }
+      pullDist = 0;
+    }
+
+    scene1.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+    scene1.addEventListener('touchstart', onPointerDown);
+    window.addEventListener('touchmove', onPointerMove);
+    window.addEventListener('touchend', onPointerUp);
+
+    let hasShot = false;
+    function shoot() {
+      if (hasShot) return;
+      hasShot = true;
+
+      playTone(440, 0.2, 'triangle');
+      stringTop.setAttribute('x2', '25');
+      stringBottom.setAttribute('x2', '25');
+
+      const bRect = bowWrap.getBoundingClientRect();
+      const hRect = heartTarget.getBoundingClientRect();
+      const targetX = hRect.left + hRect.width / 2;
+      const targetY = hRect.top + hRect.height / 2;
+      const startArrowX = bRect.left + bRect.width / 2;
+      const startArrowY = bRect.top + bRect.height / 2;
+
+      const arrow = document.createElement('div');
+      arrow.style.cssText = `
+        position: fixed;
+        left: ${startArrowX}px;
+        top: ${startArrowY}px;
+        width: 65px;
+        height: 3px;
+        background: #5a3d31;
+        transform-origin: left center;
+        transform: rotate(${arrowAngle}deg);
+        z-index: 100;
+        transition: all 0.38s cubic-bezier(0.2, 0.8, 0.4, 1);
+        pointer-events: none;
+      `;
+      document.body.appendChild(arrow);
+      arrowGroup.style.display = 'none';
+
+      requestAnimationFrame(() => {
+        arrow.style.left = `${targetX}px`;
+        arrow.style.top = `${targetY}px`;
+      });
+
+      setTimeout(() => {
+        arrow.remove();
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 0.7, 'sine'), i * 90));
+        
+        confetti({
+          particleCount: 45,
+          spread: 80,
+          origin: { x: targetX / window.innerWidth, y: targetY / window.innerHeight },
+          colors: ['#ff2a6d', '#ff7096', '#fbb1bd', '#ffd166']
+        });
+
+        heartTarget.style.transition = 'all 0.5s ease-out';
+        heartTarget.style.transform = 'translate(-50%, -50%) scale(1.35)';
+        heartTarget.style.opacity = '0';
+
+        setTimeout(() => switchScene(2), 650);
+      }, 380);
+    }
+
+    function switchScene(sceneNum) {
+      document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+      const activeScene = document.getElementById(`scene${sceneNum}`);
+      activeScene.classList.add('active');
+
+      if (sceneNum === 2) {
+        setTimeout(() => switchScene(3), 3200);
+      } else if (sceneNum === 3) {
+        startTreeCanvas();
+      }
+    }
+
+    /* =========================================
+       SCENE 3: PROGRESSIVE BOTTOM-UP BALLOONS
+       ========================================= */
+    function startTreeCanvas() {
+      const container = document.getElementById('treeContainer');
+      const canvas = document.getElementById('treeCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.42;
+      const baseY = canvas.height * 0.90;
+
+      const palette = [
+        '#f87593', '#fa93a7', '#ffb5c5', '#fdcc7a', 
+        '#f65777', '#fcd58b', '#eb4d70', '#ffe3a8'
+      ];
+
+      const balloonCount = 450;
+      let balloons = [];
+
+      for (let i = 0; i < balloonCount; i++) {
+        const t = Math.PI * 2 * Math.random();
+        // Exact Heart Profile Math
+        const hx = 16 * Math.pow(Math.sin(t), 3);
+        const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        
+        const density = Math.pow(Math.random(), 0.72);
+        const scale = Math.min(canvas.width, canvas.height) * 0.019;
+
+        const targetX = cx + hx * scale * density + (Math.random() - 0.5) * 10;
+        const targetY = cy + hy * scale * density + (Math.random() - 0.5) * 10;
+
+        balloons.push({
+          x: targetX,
+          y: targetY,
+          targetRadius: Math.random() * 6.5 + 5.5,
+          currentRadius: 0,
+          currentYOffset: 30, // Float upward entrance distance
+          color: palette[Math.floor(Math.random() * palette.length)],
+          growthRate: Math.random() * 0.45 + 0.35,
+          progress: 0
+        });
+      }
+
+      // CRUCIAL: Sort balloons by vertical coordinate (descending)
+      // This guarantees balloons bloom strictly from below (highest Y) to above (lowest Y)
+      balloons.sort((a, b) => b.y - a.y);
+
+      let activeBalloonIndex = 0;
+
+      function drawTrunk() {
+        ctx.save();
+        ctx.strokeStyle = '#432924';
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Main Trunk
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.moveTo(cx, baseY);
+        ctx.quadraticCurveTo(cx + 8, baseY - 120, cx, cy + 100);
+        ctx.stroke();
+
+        // Main Left Fork
+        ctx.lineWidth = 7.5;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 100);
+        ctx.quadraticCurveTo(cx - 50, cy + 50, cx - 80, cy - 10);
+        ctx.stroke();
+
+        // Main Right Fork
+        ctx.lineWidth = 7.5;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 100);
+        ctx.quadraticCurveTo(cx + 50, cy + 50, cx + 80, cy - 10);
+        ctx.stroke();
+
+        // Branch accents
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(cx - 30, cy + 65);
+        ctx.quadraticCurveTo(cx - 15, cy + 10, cx - 35, cy - 50);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx + 30, cy + 65);
+        ctx.quadraticCurveTo(cx + 15, cy + 10, cx + 35, cy - 50);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // Ambient floating particles
+      const petals = Array.from({ length: 28 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 4 + 2.5,
+        sy: Math.random() * 0.8 + 0.4,
+        sx: Math.random() * 0.5 - 0.25,
+        color: palette[Math.floor(Math.random() * palette.length)]
+      }));
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawTrunk();
+
+        // Render balloons ascending in sequence
+        for (let i = 0; i < balloons.length; i++) {
+          const b = balloons[i];
+          
+          if (i < activeBalloonIndex) {
+            if (b.progress < 1) {
+              b.progress = Math.min(1, b.progress + 0.05);
+              b.currentRadius = b.targetRadius * b.progress;
+              b.currentYOffset = (1 - b.progress) * 25; // Floats up into position
+            }
+          }
+
+          if (b.currentRadius > 0.1) {
+            const drawY = b.y + b.currentYOffset;
+            
+            // Balloon body
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(b.x, drawY, b.currentRadius, 0, Math.PI * 2);
+            ctx.fillStyle = b.color;
+            ctx.shadowColor = 'rgba(235, 77, 112, 0.2)';
+            ctx.shadowBlur = 4;
+            ctx.fill();
+
+            // Balloon specular shine/reflection
+            ctx.beginPath();
+            ctx.arc(b.x - b.currentRadius * 0.3, drawY - b.currentRadius * 0.3, b.currentRadius * 0.25, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        // Speed of upward progressive generation
+        if (activeBalloonIndex < balloons.length) {
+          activeBalloonIndex += 4;
+        }
+
+        // Ambient particles
+        petals.forEach(p => {
+          p.y += p.sy;
+          p.x += Math.sin(p.y * 0.01) * 0.5 + p.sx;
+          if (p.y > canvas.height) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
+          }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        });
+
+        requestAnimationFrame(render);
+      }
+
+      render();
+    }
   </script>
-
 </body>
 </html>
