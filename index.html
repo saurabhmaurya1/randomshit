@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Happy Birthday! ❤️</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,73 +25,78 @@
       margin: 0;
       padding: 0;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       min-height: 100vh;
+      min-height: 100dvh;
       background: #2b0303;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Gaegu', cursive;
       color: var(--text-dark);
-      padding: 15px;
+      padding: 10px;
     }
 
-    /* Outer Aesthetic Frame */
+    /* Responsive Frame */
     .viewport-frame {
       width: 100%;
       max-width: 860px;
-      height: 560px;
+      min-height: 560px;
+      height: 85vh;
+      max-height: 680px;
       background-color: var(--bg-cream);
       background-image: 
         linear-gradient(var(--grid-line) 1.5px, transparent 1.5px),
         linear-gradient(90deg, var(--grid-line) 1.5px, transparent 1.5px);
-      background-size: 24px 24px;
-      border: 10px solid #1a0101;
-      border-radius: 24px;
+      background-size: 20px 20px;
+      border: 8px solid #1a0101;
+      border-radius: 20px;
       position: relative;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
       overflow: hidden;
+      display: flex;
     }
 
     /* Gingham Borders */
     .gingham-border-top, .gingham-border-bottom {
       position: absolute;
       width: 100%;
-      height: 42px;
+      height: 34px;
       z-index: 10;
       pointer-events: none;
       background-color: #8b0000;
       background-image: 
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 10px, transparent 0, transparent 20px),
-        repeating-linear-gradient(-45deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 10px, transparent 0, transparent 20px);
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 8px, transparent 0, transparent 16px),
+        repeating-linear-gradient(-45deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 8px, transparent 0, transparent 16px);
     }
-    .gingham-border-top { top: 0; border-bottom: 3px dashed rgba(255,255,255,0.4); }
-    .gingham-border-bottom { bottom: 0; border-top: 3px dashed rgba(255,255,255,0.4); }
+    .gingham-border-top { top: 0; border-bottom: 2px dashed rgba(255,255,255,0.4); }
+    .gingham-border-bottom { bottom: 0; border-top: 2px dashed rgba(255,255,255,0.4); }
 
     /* Corner Stars */
     .sparkle {
       position: absolute;
-      font-size: 22px;
+      font-size: 18px;
       color: #8b0000;
       pointer-events: none;
       z-index: 12;
       animation: pulse 2s infinite ease-in-out;
     }
-    .sp-1 { top: 48px; left: 25px; }
-    .sp-2 { bottom: 48px; right: 25px; }
+    .sp-1 { top: 38px; left: 15px; }
+    .sp-2 { bottom: 38px; right: 15px; }
 
     /* Back Button */
     .back-btn {
       position: absolute;
-      top: 50px;
-      left: 25px;
+      top: 42px;
+      left: 16px;
       font-family: 'Gaegu', cursive;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
-      padding: 6px 16px;
-      border-radius: 20px;
+      padding: 4px 12px;
+      border-radius: 16px;
       background: #8b0000;
       color: #fff;
       border: 2px solid #580000;
@@ -100,20 +105,14 @@
       z-index: 50;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-    }
-    .back-btn:hover {
-      background: #aa0000;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      gap: 4px;
     }
 
-    /* Screen Views */
+    /* Screens */
     .screen {
       position: absolute;
       inset: 0;
-      padding: 50px 30px;
+      padding: 45px 16px 38px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -121,8 +120,9 @@
       opacity: 0;
       pointer-events: none;
       transform: scale(0.96);
-      transition: all 0.35s ease;
+      transition: all 0.3s ease;
       z-index: 5;
+      overflow-y: auto;
     }
     .screen.active {
       opacity: 1;
@@ -133,69 +133,70 @@
     .cursive-title {
       font-family: 'Playfair Display', serif;
       font-style: italic;
-      font-size: 40px;
+      font-size: clamp(26px, 6vw, 38px);
       color: var(--crimson);
-      margin-bottom: 4px;
+      text-align: center;
+      margin-bottom: 2px;
     }
     .sub-text {
-      font-size: 19px;
-      letter-spacing: 2px;
+      font-size: clamp(14px, 3.5vw, 18px);
+      letter-spacing: 1.5px;
       color: #555;
       font-weight: 700;
-      margin-bottom: 12px;
+      text-align: center;
+      margin-bottom: 8px;
     }
 
-    /* Button */
+    /* Buttons */
     .pixel-btn {
       background: #8b0000;
       color: #fff;
       border: 2px solid #580000;
-      padding: 10px 24px;
+      padding: 8px 20px;
       font-family: 'Gaegu', cursive;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      border-radius: 30px;
+      border-radius: 25px;
       cursor: pointer;
-      box-shadow: 0 4px 0 #4a0000;
+      box-shadow: 0 3px 0 #4a0000;
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
-    .pixel-btn:hover {
-      transform: translateY(-2px);
-      background: #a00000;
-      box-shadow: 0 6px 0 #4a0000;
+    .pixel-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #4a0000;
     }
 
     /* SCREEN 1: CAKE */
     .cake-container {
       position: relative;
-      width: 170px;
-      height: 140px;
-      margin: 10px 0 18px;
+      width: 140px;
+      height: 120px;
+      margin: 8px 0 16px;
     }
     .candle {
       position: absolute;
       top: 5px;
       left: 50%;
       transform: translateX(-50%);
-      width: 12px;
-      height: 38px;
-      background: repeating-linear-gradient(45deg, #fff, #fff 5px, #d90429 5px, #d90429 10px);
-      border-radius: 3px;
-      border: 1.5px solid #333;
+      width: 10px;
+      height: 32px;
+      background: repeating-linear-gradient(45deg, #fff, #fff 4px, #d90429 4px, #d90429 8px);
+      border-radius: 2px;
+      border: 1px solid #333;
     }
     .flame {
       position: absolute;
-      top: -18px;
+      top: -16px;
       left: 50%;
       transform: translateX(-50%);
-      width: 14px;
-      height: 20px;
+      width: 12px;
+      height: 18px;
       background: radial-gradient(ellipse at bottom, #fff75e 0%, #ff9e00 60%, #ff4800 100%);
       border-radius: 50% 50% 35% 35%;
-      box-shadow: 0 0 16px #ff9e00;
+      box-shadow: 0 0 14px #ff9e00;
       animation: flicker 0.6s infinite alternate;
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
@@ -206,46 +207,40 @@
 
     /* SCREEN 2: CREATURE */
     .creature-card { text-align: center; }
-    .creature-art { width: 140px; height: 120px; margin: 10px auto; }
-    .btn-row { display: flex; gap: 20px; justify-content: center; margin-top: 15px; }
+    .creature-art { width: 120px; height: 105px; margin: 8px auto; }
+    .btn-row { display: flex; gap: 15px; justify-content: center; margin-top: 12px; }
 
     /* SCREEN 3: GIFTS HUB */
     .gift-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 25px;
-      margin-top: 20px;
+      gap: 12px;
+      margin-top: 15px;
       width: 100%;
-      max-width: 620px;
+      max-width: 580px;
     }
     .gift-item {
       background: #ffffffc7;
       border: 2px dashed #b58383;
-      border-radius: 16px;
-      padding: 18px 10px;
+      border-radius: 12px;
+      padding: 12px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: pointer;
-      transition: all 0.25s ease;
     }
-    .gift-item:hover {
-      transform: translateY(-6px);
-      background: #fff;
-      border-color: #8b0000;
-      box-shadow: 0 10px 20px rgba(139, 0, 0, 0.15);
-    }
-    .gift-icon { width: 80px; height: 80px; }
-    .gift-item span { margin-top: 8px; font-size: 18px; font-weight: 700; color: #8b0000; }
+    .gift-icon { width: 55px; height: 55px; }
+    .gift-item span { margin-top: 6px; font-size: 15px; font-weight: 700; color: #8b0000; text-align: center; }
 
     /* SUBVIEW 1: LOVE LETTER */
     .envelope-stage {
       position: relative;
-      width: 340px;
-      height: 220px;
+      width: 90%;
+      max-width: 320px;
+      height: 190px;
       background: #7a0c0c;
       border-radius: 12px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.3);
       cursor: pointer;
       display: flex;
       justify-content: center;
@@ -255,23 +250,24 @@
     }
     .letter-paper {
       position: absolute;
-      bottom: 10px;
-      width: 310px;
-      height: 215px;
+      bottom: 8px;
+      width: 94%;
+      height: 185px;
       background: #fffdfa;
       border-radius: 8px;
-      padding: 18px;
+      padding: 12px 10px;
       text-align: center;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.12);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.12);
       font-family: 'Caveat', cursive;
-      font-size: 18px;
-      line-height: 1.35;
+      font-size: clamp(14px, 4vw, 17px);
+      line-height: 1.25;
       color: #3b0909;
       z-index: 1;
       transform: translateY(0);
       opacity: 0;
       transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
       pointer-events: none;
+      overflow-y: auto;
     }
     .envelope-front {
       position: absolute;
@@ -289,16 +285,15 @@
       transform: translate(-50%, -50%);
       background: #e63946;
       color: #fff;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      padding: 4px 10px;
+      border-radius: 16px;
       z-index: 3;
-      transition: opacity 0.3s;
+      white-space: nowrap;
     }
     .envelope-stage.open .letter-paper {
-      transform: translateY(-110px);
+      transform: translateY(-80px);
       opacity: 1;
       z-index: 4;
       pointer-events: auto;
@@ -313,17 +308,18 @@
       align-items: center;
       justify-content: space-around;
       width: 100%;
-      max-width: 580px;
+      max-width: 520px;
+      gap: 10px;
     }
     .cute-sticker {
       background: #fff;
-      padding: 7px 14px;
-      border-radius: 20px;
+      padding: 5px 10px;
+      border-radius: 16px;
       border: 1.5px solid #ff7b90;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       color: #b3003b;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: inline-block;
     }
 
@@ -332,74 +328,90 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 32px;
+      gap: 14px;
       width: 100%;
-      max-width: 680px;
+      max-width: 600px;
       margin-top: 10px;
     }
 
     .polaroid-frame {
       background: #fff;
-      padding: 10px 10px 24px 10px;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.22), 0 2px 4px rgba(0,0,0,0.1);
-      transform: rotate(-3deg);
-      transition: transform 0.3s ease;
+      padding: 6px 6px 14px 6px;
+      border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+      transform: rotate(-2deg);
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    .polaroid-frame:hover {
-      transform: rotate(0deg) scale(1.04);
+      flex-shrink: 0;
     }
     .polaroid-img {
-      width: 140px;
-      height: 180px;
+      width: clamp(90px, 26vw, 130px);
+      height: clamp(120px, 34vw, 160px);
       object-fit: cover;
       border-radius: 4px;
       border: 1px solid #ddd;
     }
     .polaroid-caption {
       font-family: 'Caveat', cursive;
-      font-size: 18px;
+      font-size: 15px;
       color: #8b0000;
-      margin-top: 8px;
+      margin-top: 4px;
       font-weight: 700;
     }
 
     .song-details-card {
-      background: rgba(255, 255, 255, 0.92);
-      border: 2px solid #8b0000;
-      border-radius: 16px;
-      padding: 20px 24px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1.5px solid #8b0000;
+      border-radius: 14px;
+      padding: 12px 14px;
       text-align: center;
-      box-shadow: 0 8px 20px rgba(139, 0, 0, 0.1);
+      box-shadow: 0 6px 16px rgba(139, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      min-width: 260px;
+      gap: 6px;
+      flex: 1;
+      max-width: 260px;
     }
 
     .audio-btn {
       background: #8b0000;
       color: #fff;
       border: none;
-      padding: 8px 20px;
-      border-radius: 20px;
+      padding: 6px 16px;
+      border-radius: 18px;
       font-family: 'Gaegu', cursive;
-      font-size: 19px;
+      font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      transition: all 0.2s ease;
+      gap: 5px;
     }
-    .audio-btn:hover {
-      background: #b00000;
-      transform: scale(1.05);
+
+    /* Mobile specific adjustments (under 560px) */
+    @media (max-width: 560px) {
+      .viewport-frame {
+        height: 92vh;
+        max-height: none;
+        border-width: 6px;
+      }
+      .music-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .flowers-container {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+      .gift-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .envelope-stage.open .letter-paper {
+        transform: translateY(-60px);
+      }
     }
 
     @keyframes flicker {
@@ -420,7 +432,7 @@
     <div class="sparkle sp-1">✦</div>
     <div class="sparkle sp-2">✦</div>
 
-    <!-- Hidden HTML5 Audio Element playing your MP3 -->
+    <!-- Audio Element -->
     <audio id="kalyani-audio" src="KALYANI(KoshalWorld.Com).mp3" preload="auto"></audio>
 
     <!-- SCREEN 1: CAKE & WISH -->
@@ -446,7 +458,7 @@
     <!-- SCREEN 2: ACCEPT PROMPT -->
     <section id="screen-accept" class="screen">
       <div class="creature-card">
-        <h2 id="accept-heading" class="cursive-title" style="font-size: 32px;">PLEASE ACCEPT THE GIFT</h2>
+        <h2 id="accept-heading" class="cursive-title">PLEASE ACCEPT THE GIFT</h2>
         
         <svg id="creature-svg" class="creature-art" viewBox="0 0 160 140">
           <ellipse cx="80" cy="75" rx="55" ry="42" fill="#fff" stroke="#1f1f1f" stroke-width="3"/>
@@ -464,14 +476,14 @@
           <button id="accept-yes" class="pixel-btn" style="background:#2e7d32; border-color:#1b5e20;">YES</button>
           <button id="accept-no" class="pixel-btn">NO</button>
         </div>
-        <button id="retry-btn" class="pixel-btn" style="display:none; margin: 15px auto 0;">TRY AGAIN</button>
+        <button id="retry-btn" class="pixel-btn" style="display:none; margin: 12px auto 0;">TRY AGAIN</button>
       </div>
     </section>
 
     <!-- SCREEN 3: GIFTS HUB -->
     <section id="screen-gifts" class="screen">
-      <h2 class="cursive-title" style="font-size: 36px;">Choose Your Gifts</h2>
-      <div class="sub-text" style="font-size:15px;">Pick one to open ✨</div>
+      <h2 class="cursive-title">Choose Your Gifts</h2>
+      <div class="sub-text">Pick one to open ✨</div>
 
       <div class="gift-grid">
         <div class="gift-item" onclick="openGift('letter')">
@@ -509,7 +521,7 @@
       
       <div class="envelope-stage" id="envelope-elem" onclick="this.classList.toggle('open')">
         <div class="letter-paper">
-          <h3 style="font-family:'Playfair Display', serif; font-size:20px; color:#8b0000;">Happy Birthday, Meri Jaan!</h3>
+          <h3 style="font-family:'Playfair Display', serif; font-size:18px; color:#8b0000;">Happy Birthday, Meri Jaan!</h3>
           <p style="margin-top:4px;">
             To <strong>my cutuuu khuchupuchuuu</strong>, my sweetest sweetu, & my cute betuuuuu 🌸✨<br>
             Thank you for bringing so much warmth, silly giggles, and pure happiness into my life. Every day is magical with you!<br>
@@ -527,13 +539,13 @@
       <button class="back-btn" onclick="backToGifts()">← Back</button>
       <div class="flowers-container">
         <div>
-          <h2 class="cursive-title" style="font-size:30px;">flowers for<br>my sweetheart! ♡</h2>
-          <div style="margin-top:10px;">
+          <h2 class="cursive-title" style="font-size:clamp(22px, 5vw, 28px);">flowers for<br>my sweetheart! ♡</h2>
+          <div style="margin-top:8px;">
             <span class="cute-sticker">🎀 my favorite person</span><br>
             <span class="cute-sticker">💖 I'm your #1 fan</span>
           </div>
         </div>
-        <svg width="170" height="190" viewBox="0 0 100 120">
+        <svg width="130" height="150" viewBox="0 0 100 120">
           <path d="M50 60 L30 110 M50 60 L50 115 M50 60 L70 110" stroke="#2d6a4f" stroke-width="4" stroke-linecap="round"/>
           <circle cx="50" cy="40" r="18" fill="#8b0000"/>
           <circle cx="32" cy="52" r="15" fill="#a00000"/>
@@ -543,7 +555,7 @@
       </div>
     </section>
 
-    <!-- SUBVIEW 3: KALYANI MP3 SONG & PHOTO -->
+    <!-- SUBVIEW 3: KALYANI SONG & PHOTO -->
     <section id="view-music" class="screen">
       <button class="back-btn" onclick="backToGifts()">← Back</button>
       
@@ -556,14 +568,14 @@
 
         <!-- Song Controller -->
         <div class="song-details-card">
-          <h3 style="font-family:'Playfair Display', serif; font-size:22px; color:#8b0000;">Kalyani 🎵</h3>
-          <p style="font-size:15px; color:#666;">Playing for my favorite person</p>
+          <h3 style="font-family:'Playfair Display', serif; font-size:20px; color:#8b0000;">Kalyani 🎵</h3>
+          <p style="font-size:14px; color:#666;">Playing for my favorite person</p>
           
           <button id="audio-play-btn" class="audio-btn" onclick="toggleAudio()">
             <span id="audio-icon">▶️</span> <span id="audio-text">Play Song</span>
           </button>
 
-          <p style="margin-top:4px; font-size:18px; font-weight:bold; color:#8b0000;">
+          <p style="margin-top:2px; font-size:16px; font-weight:bold; color:#8b0000;">
             I LOVE YOU Sooooo... MUCH ♥
           </p>
         </div>
@@ -612,7 +624,7 @@
         flame.classList.add('blown-out');
         document.getElementById('blow-icon').textContent = '✨';
         document.getElementById('blow-label').textContent = 'NEXT';
-        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       } else {
         showScreen('screen-accept');
       }
@@ -626,7 +638,7 @@
     const mouth = document.getElementById('creature-mouth');
 
     acceptYes.addEventListener('click', () => {
-      confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 } });
+      confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
       showScreen('screen-gifts');
     });
 
@@ -656,7 +668,7 @@
         audioElement.play().then(() => {
           audioIcon.textContent = '⏸️';
           audioText.textContent = 'Pause';
-        }).catch(err => console.log('Audio autoplay blocked, click button to play'));
+        }).catch(err => console.log('Autoplay blocked on mobile until user interaction'));
       }
     }
 
