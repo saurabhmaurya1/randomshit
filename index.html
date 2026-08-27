@@ -3,642 +3,668 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>A Little Something For You</title>
+  <title>Happy Birthday! ❤️</title>
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Alex+Brush&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Gaegu:wght@400;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
+    :root {
+      --bg-cream: #f4eee1;
+      --grid-line: #e3d9c6;
+      --crimson: #8b0000;
+      --deep-red: #580000;
+      --card-bg: #fffbf5;
+      --text-dark: #2b1717;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
-      -webkit-user-select: none;
     }
 
-    body, html {
+    body {
+      min-height: 100vh;
+      background: #2b0303;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Gaegu', cursive;
+      color: var(--text-dark);
+      padding: 15px;
+    }
+
+    /* Outer Aesthetic Frame */
+    .viewport-frame {
       width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #f7ede8;
-    }
-
-    #app {
+      max-width: 860px;
+      height: 560px;
+      background-color: var(--bg-cream);
+      background-image: 
+        linear-gradient(var(--grid-line) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, var(--grid-line) 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+      border: 10px solid #1a0101;
+      border-radius: 24px;
       position: relative;
-      width: 100vw;
-      height: 100vh;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
       overflow: hidden;
     }
 
-    .scene {
+    /* Gingham Borders */
+    .gingham-border-top, .gingham-border-bottom {
+      position: absolute;
+      width: 100%;
+      height: 42px;
+      z-index: 10;
+      pointer-events: none;
+      background-color: #8b0000;
+      background-image: 
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 10px, transparent 0, transparent 20px),
+        repeating-linear-gradient(-45deg, rgba(255,255,255,0.2) 0, rgba(255,255,255,0.2) 10px, transparent 0, transparent 20px);
+    }
+    .gingham-border-top { top: 0; border-bottom: 3px dashed rgba(255,255,255,0.4); }
+    .gingham-border-bottom { bottom: 0; border-top: 3px dashed rgba(255,255,255,0.4); }
+
+    /* Corner Stars */
+    .sparkle {
+      position: absolute;
+      font-size: 22px;
+      color: #8b0000;
+      pointer-events: none;
+      z-index: 12;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .sp-1 { top: 48px; left: 25px; }
+    .sp-2 { bottom: 48px; right: 25px; }
+
+    /* Back Button */
+    .back-btn {
+      position: absolute;
+      top: 50px;
+      left: 25px;
+      font-family: 'Gaegu', cursive;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: #8b0000;
+      color: #fff;
+      border: 2px solid #580000;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .back-btn:hover {
+      background: #aa0000;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Screen Views */
+    .screen {
       position: absolute;
       inset: 0;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .scene.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* SCENE 1: ARCHERY */
-    #scene1 {
-      background: radial-gradient(circle at 65% 30%, #ffdbe4 0%, #fbf1ea 55%, #f6e6dc 100%);
-      cursor: crosshair;
-    }
-
-    .s1-header {
-      position: absolute;
-      top: 12%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: clamp(1.4rem, 2.8vw, 2.3rem);
-      color: #93384e;
-      letter-spacing: 0.5px;
-      text-align: center;
-      width: 100%;
-    }
-
-    .heart-target {
-      position: absolute;
-      top: 28%;
-      left: 65%;
-      width: 140px;
-      height: 140px;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle at 35% 35%, #ff5287, #c90e44);
-      clip-path: path("M 70 25 C 70 25, 58 0, 35 0 C 15 0, 0 15, 0 35 C 0 65, 40 95, 70 125 C 100 95, 140 65, 140 35 C 140 15, 125 0, 105 0 C 82 0, 70 25, 70 25 Z");
-      filter: drop-shadow(0 0 40px rgba(229, 36, 94, 0.7));
-      animation: heartPulse 2.8s ease-in-out infinite alternate;
-    }
-
-    @keyframes heartPulse {
-      0% {
-        transform: translate(-50%, -50%) scale(0.96);
-        filter: drop-shadow(0 0 30px rgba(229, 36, 94, 0.55));
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1.08);
-        filter: drop-shadow(0 0 65px rgba(255, 45, 115, 0.9));
-      }
-    }
-
-    .bow-container {
-      position: absolute;
-      bottom: 20%;
-      left: 20%;
-      width: 130px;
-      height: 130px;
-      transform-origin: center center;
-    }
-
-    .bow-svg {
-      width: 100%;
-      height: 100%;
-      overflow: visible;
-    }
-
-    .drag-hint {
-      position: absolute;
-      bottom: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Cinzel', serif;
-      letter-spacing: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #7d6560;
-      animation: pulseText 2s ease-in-out infinite;
-    }
-
-    @keyframes pulseText {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.95; }
-    }
-
-    /* SCENE 2: MAGENTA CARD */
-    #scene2 {
+      padding: 50px 30px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, #b80c47 0%, #680026 100%);
-      color: #ffffff;
-      text-align: center;
-    }
-
-    .s2-content {
-      transform: scale(0.85);
       opacity: 0;
-      transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      transform: scale(0.96);
+      transition: all 0.35s ease;
+      z-index: 5;
     }
-
-    #scene2.active .s2-content {
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
       transform: scale(1);
-      opacity: 1;
     }
 
-    .s2-sub-top {
-      font-family: 'Alex Brush', cursive;
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      margin-bottom: 10px;
-      color: #ffd8e2;
-    }
-
-    .s2-title {
+    .cursive-title {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      font-style: italic;
+      font-size: 40px;
+      color: var(--crimson);
+      margin-bottom: 4px;
+    }
+    .sub-text {
+      font-size: 19px;
+      letter-spacing: 2px;
+      color: #555;
       font-weight: 700;
-      letter-spacing: 1px;
-      line-height: 1.1;
-      text-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
-      margin-bottom: 25px;
-    }
-
-    .s2-underline {
-      width: 120px;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.7);
-      margin: 0 auto 25px;
-    }
-
-    .s2-sub-bottom {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: clamp(1rem, 2vw, 1.3rem);
-      color: rgba(255, 255, 255, 0.85);
-      letter-spacing: 1px;
-    }
-
-    /* SCENE 3: SPLIT LAYOUT TREE */
-    #scene3 {
-      background: radial-gradient(circle at 60% 50%, #fff7f4 0%, #faede5 50%, #ecdacf 100%);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 6vw;
-    }
-
-    .s3-left-panel {
-      flex: 0 0 45%;
-      max-width: 500px;
-      z-index: 10;
-      opacity: 0;
-      transform: translateX(-40px);
-      transition: all 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
-    }
-
-    #scene3.active .s3-left-panel {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .s3-lead {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: clamp(1.2rem, 2.2vw, 1.7rem);
-      color: #8c3b4f;
-      margin-bottom: 6px;
-    }
-
-    .s3-title {
-      font-family: 'Alex Brush', cursive;
-      font-size: clamp(3.6rem, 6.5vw, 5.8rem);
-      color: #8c0032;
-      line-height: 1.1;
       margin-bottom: 12px;
-      text-shadow: 0 4px 15px rgba(140, 0, 50, 0.1);
     }
 
-    .s3-desc {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: clamp(0.95rem, 1.4vw, 1.15rem);
-      color: #6d544e;
-      font-weight: 400;
-      letter-spacing: 0.3px;
+    /* Button */
+    .pixel-btn {
+      background: #8b0000;
+      color: #fff;
+      border: 2px solid #580000;
+      padding: 10px 24px;
+      font-family: 'Gaegu', cursive;
+      font-size: 20px;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #4a0000;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pixel-btn:hover {
+      transform: translateY(-2px);
+      background: #a00000;
+      box-shadow: 0 6px 0 #4a0000;
     }
 
-    .s3-right-panel {
-      flex: 0 0 55%;
-      height: 100%;
+    /* SCREEN 1: CAKE */
+    .cake-container {
       position: relative;
+      width: 170px;
+      height: 140px;
+      margin: 10px 0 18px;
+    }
+    .candle {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 38px;
+      background: repeating-linear-gradient(45deg, #fff, #fff 5px, #d90429 5px, #d90429 10px);
+      border-radius: 3px;
+      border: 1.5px solid #333;
+    }
+    .flame {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 20px;
+      background: radial-gradient(ellipse at bottom, #fff75e 0%, #ff9e00 60%, #ff4800 100%);
+      border-radius: 50% 50% 35% 35%;
+      box-shadow: 0 0 16px #ff9e00;
+      animation: flicker 0.6s infinite alternate;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .flame.blown-out {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px) scale(0.1);
+    }
+
+    /* SCREEN 2: CREATURE */
+    .creature-card { text-align: center; }
+    .creature-art { width: 140px; height: 120px; margin: 10px auto; }
+    .btn-row { display: flex; gap: 20px; justify-content: center; margin-top: 15px; }
+
+    /* SCREEN 3: GIFTS HUB */
+    .gift-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 620px;
+    }
+    .gift-item {
+      background: #ffffffc7;
+      border: 2px dashed #b58383;
+      border-radius: 16px;
+      padding: 18px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .gift-item:hover {
+      transform: translateY(-6px);
+      background: #fff;
+      border-color: #8b0000;
+      box-shadow: 0 10px 20px rgba(139, 0, 0, 0.15);
+    }
+    .gift-icon { width: 80px; height: 80px; }
+    .gift-item span { margin-top: 8px; font-size: 18px; font-weight: 700; color: #8b0000; }
+
+    /* SUBVIEW 1: LOVE LETTER */
+    .envelope-stage {
+      position: relative;
+      width: 340px;
+      height: 220px;
+      background: #7a0c0c;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      overflow: visible;
+      margin-top: 45px;
+    }
+    .letter-paper {
+      position: absolute;
+      bottom: 10px;
+      width: 310px;
+      height: 215px;
+      background: #fffdfa;
+      border-radius: 8px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.12);
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      line-height: 1.35;
+      color: #3b0909;
+      z-index: 1;
+      transform: translateY(0);
+      opacity: 0;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .envelope-front {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #8b0000 50%, #700000 50%);
+      clip-path: polygon(0% 100%, 100% 100%, 100% 35%, 50% 65%, 0% 35%);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .envelope-seal {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #e63946;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      z-index: 3;
+      transition: opacity 0.3s;
+    }
+    .envelope-stage.open .letter-paper {
+      transform: translateY(-110px);
+      opacity: 1;
+      z-index: 4;
+      pointer-events: auto;
+    }
+    .envelope-stage.open .envelope-seal {
+      opacity: 0;
+    }
+
+    /* SUBVIEW 2: FLOWERS */
+    .flowers-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 580px;
+    }
+    .cute-sticker {
+      background: #fff;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid #ff7b90;
+      font-size: 15px;
+      font-weight: 700;
+      color: #b3003b;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    /* SUBVIEW 3: KALYANI SONG & PHOTO */
+    .music-container {
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    canvas#treeCanvas {
+      gap: 32px;
       width: 100%;
-      height: 100%;
-      display: block;
+      max-width: 680px;
+      margin-top: 10px;
     }
 
-    @media (max-width: 768px) {
-      #scene3 {
-        flex-direction: column-reverse;
-        justify-content: flex-end;
-        padding: 40px 20px;
-      }
-      .s3-left-panel {
-        flex: none;
-        max-width: 100%;
-        text-align: center;
-        margin-top: 10px;
-      }
-      .s3-right-panel {
-        flex: 1;
-        width: 100%;
-      }
-      .heart-target {
-        left: 50%;
-        top: 25%;
-      }
-      .bow-container {
-        left: 50%;
-        bottom: 15%;
-        transform: translateX(-50%);
-      }
+    .polaroid-frame {
+      background: #fff;
+      padding: 10px 10px 24px 10px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22), 0 2px 4px rgba(0,0,0,0.1);
+      transform: rotate(-3deg);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .polaroid-frame:hover {
+      transform: rotate(0deg) scale(1.04);
+    }
+    .polaroid-img {
+      width: 140px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .polaroid-caption {
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: #8b0000;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    .song-details-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 2px solid #8b0000;
+      border-radius: 16px;
+      padding: 20px 24px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(139, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      min-width: 260px;
+    }
+
+    .audio-btn {
+      background: #8b0000;
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-family: 'Gaegu', cursive;
+      font-size: 19px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+    }
+    .audio-btn:hover {
+      background: #b00000;
+      transform: scale(1.05);
+    }
+
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scale(1); }
+      100% { transform: translateX(-50%) scale(1.15) rotate(2deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
     }
   </style>
 </head>
 <body>
 
-  <div id="app">
-    <!-- SCENE 1 -->
-    <div id="scene1" class="scene active">
-      <div class="s1-header">a little something, for you</div>
-      <div class="heart-target" id="heartTarget"></div>
+  <div class="viewport-frame">
+    <div class="gingham-border-top"></div>
+    <div class="gingham-border-bottom"></div>
+    <div class="sparkle sp-1">✦</div>
+    <div class="sparkle sp-2">✦</div>
 
-      <div class="bow-container" id="bowWrap">
-        <svg class="bow-svg" viewBox="0 0 100 100">
-          <path d="M 25 15 Q 55 50 25 85" fill="none" stroke="#442a22" stroke-width="4.5" stroke-linecap="round"/>
-          <line id="stringTop" x1="25" y1="15" x2="25" y2="50" stroke="#87756f" stroke-width="1.8"/>
-          <line id="stringBottom" x1="25" y1="85" x2="25" y2="50" stroke="#87756f" stroke-width="1.8"/>
-          <g id="arrowGroup">
-            <line x1="0" y1="50" x2="68" y2="50" stroke="#5a3d31" stroke-width="3" stroke-linecap="round"/>
-            <polygon points="68,46 78,50 68,54" fill="#a4193d" />
-            <polygon points="0,50 8,44 14,50" fill="#f0728f" />
-            <polygon points="0,50 8,56 14,50" fill="#f0728f" />
-          </g>
+    <!-- Hidden HTML5 Audio Element playing your MP3 -->
+    <audio id="kalyani-audio" src="KALYANI(KoshalWorld.Com).mp3" preload="auto"></audio>
+
+    <!-- SCREEN 1: CAKE & WISH -->
+    <section id="screen-cake" class="screen active">
+      <h1 class="cursive-title">Happy Birthday</h1>
+      <div class="sub-text">Make a Wish!</div>
+
+      <div class="cake-container">
+        <div class="flame" id="candle-flame"></div>
+        <div class="candle"></div>
+        <svg style="width:100%; height:100%;" viewBox="0 0 200 150">
+          <path d="M 40 75 Q 100 60 160 75 L 160 120 Q 100 135 40 120 Z" fill="#fffaf2" stroke="#4a1818" stroke-width="3.5"/>
+          <path d="M 40 75 Q 70 95 100 75 Q 130 95 160 75" fill="none" stroke="#8b0000" stroke-width="4"/>
+          <path d="M 25 120 Q 100 100 175 120 L 175 140 Q 100 155 25 140 Z" fill="#edd6bd" stroke="#4a1818" stroke-width="3.5"/>
         </svg>
       </div>
 
-      <div class="drag-hint">PULL & RELEASE</div>
-    </div>
+      <button id="blow-btn" class="pixel-btn">
+        <span id="blow-icon">🕯️</span> <span id="blow-label">BLOW THE CANDLES</span>
+      </button>
+    </section>
 
-    <!-- SCENE 2 -->
-    <div id="scene2" class="scene">
-      <div class="s2-content">
-        <div class="s2-sub-top">make a wish...</div>
-        <h1 class="s2-title">Happy<br>Birthday</h1>
-        <div class="s2-underline"></div>
-        <div class="s2-sub-bottom">to someone worth celebrating</div>
-      </div>
-    </div>
+    <!-- SCREEN 2: ACCEPT PROMPT -->
+    <section id="screen-accept" class="screen">
+      <div class="creature-card">
+        <h2 id="accept-heading" class="cursive-title" style="font-size: 32px;">PLEASE ACCEPT THE GIFT</h2>
+        
+        <svg id="creature-svg" class="creature-art" viewBox="0 0 160 140">
+          <ellipse cx="80" cy="75" rx="55" ry="42" fill="#fff" stroke="#1f1f1f" stroke-width="3"/>
+          <ellipse cx="58" cy="72" rx="16" ry="18" fill="#1f1f1f"/>
+          <circle cx="53" cy="66" r="6" fill="#fff"/>
+          <ellipse cx="102" cy="72" rx="16" ry="18" fill="#1f1f1f"/>
+          <circle cx="97" cy="66" r="6" fill="#fff"/>
+          <circle cx="40" cy="85" r="7" fill="#ffb3c1" opacity="0.6"/>
+          <circle cx="120" cy="85" r="7" fill="#ffb3c1" opacity="0.6"/>
+          <path id="creature-mouth" d="M 76 86 Q 80 88 84 86" stroke="#1f1f1f" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M 55 115 L 55 128 M 72 117 L 72 128 M 88 117 L 88 128 M 105 115 L 105 128" stroke="#1f1f1f" stroke-width="3" stroke-linecap="round"/>
+        </svg>
 
-    <!-- SCENE 3 -->
-    <div id="scene3" class="scene">
-      <div class="s3-left-panel">
-        <div class="s3-lead">and... make it count</div>
-        <h2 class="s3-title">Happy Birthday</h2>
-        <div class="s3-desc">here's to a year that blooms ✨</div>
+        <div class="btn-row" id="choice-buttons">
+          <button id="accept-yes" class="pixel-btn" style="background:#2e7d32; border-color:#1b5e20;">YES</button>
+          <button id="accept-no" class="pixel-btn">NO</button>
+        </div>
+        <button id="retry-btn" class="pixel-btn" style="display:none; margin: 15px auto 0;">TRY AGAIN</button>
       </div>
-      <div class="s3-right-panel" id="treeContainer">
-        <canvas id="treeCanvas"></canvas>
+    </section>
+
+    <!-- SCREEN 3: GIFTS HUB -->
+    <section id="screen-gifts" class="screen">
+      <h2 class="cursive-title" style="font-size: 36px;">Choose Your Gifts</h2>
+      <div class="sub-text" style="font-size:15px;">Pick one to open ✨</div>
+
+      <div class="gift-grid">
+        <div class="gift-item" onclick="openGift('letter')">
+          <svg class="gift-icon" viewBox="0 0 100 100">
+            <rect x="15" y="25" width="70" height="50" rx="4" fill="#8b0000"/>
+            <path d="M 15 25 L 50 55 L 85 25" fill="none" stroke="#ffffff" stroke-width="3"/>
+          </svg>
+          <span>Love Letter</span>
+        </div>
+
+        <div class="gift-item" onclick="openGift('flowers')">
+          <svg class="gift-icon" viewBox="0 0 100 100">
+            <circle cx="50" cy="35" r="14" fill="#b7094c"/>
+            <circle cx="36" cy="45" r="12" fill="#d90429"/>
+            <circle cx="64" cy="45" r="12" fill="#d90429"/>
+            <path d="M 30 75 Q 50 90 70 75 L 58 90 L 42 90 Z" fill="#8b0000"/>
+          </svg>
+          <span>Bouquet</span>
+        </div>
+
+        <div class="gift-item" onclick="openGift('music')">
+          <svg class="gift-icon" viewBox="0 0 100 100">
+            <rect x="25" y="40" width="50" height="42" fill="#8b0000"/>
+            <rect x="20" y="32" width="60" height="12" fill="#b7094c"/>
+            <line x1="50" y1="32" x2="50" y2="82" stroke="#ffb703" stroke-width="5"/>
+          </svg>
+          <span>Surprise Song</span>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- SUBVIEW 1: LOVE LETTER -->
+    <section id="view-letter" class="screen">
+      <button class="back-btn" onclick="backToGifts()">← Back</button>
+      
+      <div class="envelope-stage" id="envelope-elem" onclick="this.classList.toggle('open')">
+        <div class="letter-paper">
+          <h3 style="font-family:'Playfair Display', serif; font-size:20px; color:#8b0000;">Happy Birthday, Meri Jaan!</h3>
+          <p style="margin-top:4px;">
+            To <strong>my cutuuu khuchupuchuuu</strong>, my sweetest sweetu, & my cute betuuuuu 🌸✨<br>
+            Thank you for bringing so much warmth, silly giggles, and pure happiness into my life. Every day is magical with you!<br>
+            I will do nom nom to your cheeks! 😚🥰<br>
+            <strong>I love you more than words could ever say! ❤️</strong>
+          </p>
+        </div>
+        <div class="envelope-front"></div>
+        <div class="envelope-seal">Click to Open ✉️</div>
+      </div>
+    </section>
+
+    <!-- SUBVIEW 2: FLOWERS -->
+    <section id="view-flowers" class="screen">
+      <button class="back-btn" onclick="backToGifts()">← Back</button>
+      <div class="flowers-container">
+        <div>
+          <h2 class="cursive-title" style="font-size:30px;">flowers for<br>my sweetheart! ♡</h2>
+          <div style="margin-top:10px;">
+            <span class="cute-sticker">🎀 my favorite person</span><br>
+            <span class="cute-sticker">💖 I'm your #1 fan</span>
+          </div>
+        </div>
+        <svg width="170" height="190" viewBox="0 0 100 120">
+          <path d="M50 60 L30 110 M50 60 L50 115 M50 60 L70 110" stroke="#2d6a4f" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="50" cy="40" r="18" fill="#8b0000"/>
+          <circle cx="32" cy="52" r="15" fill="#a00000"/>
+          <circle cx="68" cy="52" r="15" fill="#c00000"/>
+          <polygon points="35,100 65,100 55,118 45,118" fill="#8b0000"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- SUBVIEW 3: KALYANI MP3 SONG & PHOTO -->
+    <section id="view-music" class="screen">
+      <button class="back-btn" onclick="backToGifts()">← Back</button>
+      
+      <div class="music-container">
+        <!-- Photo Polaroid -->
+        <div class="polaroid-frame">
+          <img class="polaroid-img" src="WhatsApp Image 2026-08-14 at 22.46.49.jpeg" alt="Sweetheart" onerror="this.src='https://placehold.co/140x180?text=My+Sweetu'"/>
+          <div class="polaroid-caption">My Cutie Betu 🌸</div>
+        </div>
+
+        <!-- Song Controller -->
+        <div class="song-details-card">
+          <h3 style="font-family:'Playfair Display', serif; font-size:22px; color:#8b0000;">Kalyani 🎵</h3>
+          <p style="font-size:15px; color:#666;">Playing for my favorite person</p>
+          
+          <button id="audio-play-btn" class="audio-btn" onclick="toggleAudio()">
+            <span id="audio-icon">▶️</span> <span id="audio-text">Play Song</span>
+          </button>
+
+          <p style="margin-top:4px; font-size:18px; font-weight:bold; color:#8b0000;">
+            I LOVE YOU Sooooo... MUCH ♥
+          </p>
+        </div>
+      </div>
+    </section>
+
   </div>
 
   <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioElement = document.getElementById('kalyani-audio');
+    const audioIcon = document.getElementById('audio-icon');
+    const audioText = document.getElementById('audio-text');
 
-    function playTone(freq, duration, type = 'sine') {
-      try {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
-    }
-
-    const bowWrap = document.getElementById('bowWrap');
-    const arrowGroup = document.getElementById('arrowGroup');
-    const stringTop = document.getElementById('stringTop');
-    const stringBottom = document.getElementById('stringBottom');
-    const heartTarget = document.getElementById('heartTarget');
-    const scene1 = document.getElementById('scene1');
-
-    let isDragging = false;
-    let startX = 0, startY = 0;
-    let pullDist = 0;
-    let arrowAngle = -35;
-
-    function updateBowOrientation() {
-      const bRect = bowWrap.getBoundingClientRect();
-      const hRect = heartTarget.getBoundingClientRect();
-      const dx = (hRect.left + hRect.width / 2) - (bRect.left + bRect.width / 2);
-      const dy = (hRect.top + hRect.height / 2) - (bRect.top + bRect.height / 2);
-      arrowAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-      bowWrap.style.transform = `rotate(${arrowAngle}deg)`;
-    }
-
-    window.addEventListener('resize', updateBowOrientation);
-    setTimeout(updateBowOrientation, 50);
-
-    function onPointerDown(e) {
-      isDragging = true;
-      const pt = e.touches ? e.touches[0] : e;
-      startX = pt.clientX;
-      startY = pt.clientY;
-    }
-
-    function onPointerMove(e) {
-      if (!isDragging) return;
-      const pt = e.touches ? e.touches[0] : e;
-      const dist = Math.hypot(pt.clientX - startX, pt.clientY - startY);
-      pullDist = Math.min(dist, 45);
-
-      arrowGroup.setAttribute('transform', `translate(${-pullDist}, 0)`);
-      stringTop.setAttribute('x2', `${25 - pullDist}`);
-      stringBottom.setAttribute('x2', `${25 - pullDist}`);
-    }
-
-    function onPointerUp() {
-      if (!isDragging) return;
-      isDragging = false;
-
-      if (pullDist > 10) {
-        shoot();
+    function toggleAudio() {
+      if (audioElement.paused) {
+        audioElement.play().then(() => {
+          audioIcon.textContent = '⏸️';
+          audioText.textContent = 'Pause';
+        }).catch(err => console.log('Playback error:', err));
       } else {
-        arrowGroup.setAttribute('transform', 'translate(0, 0)');
-        stringTop.setAttribute('x2', '25');
-        stringBottom.setAttribute('x2', '25');
-      }
-      pullDist = 0;
-    }
-
-    scene1.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('mousemove', onPointerMove);
-    window.addEventListener('mouseup', onPointerUp);
-    scene1.addEventListener('touchstart', onPointerDown);
-    window.addEventListener('touchmove', onPointerMove);
-    window.addEventListener('touchend', onPointerUp);
-
-    let hasShot = false;
-    function shoot() {
-      if (hasShot) return;
-      hasShot = true;
-
-      playTone(440, 0.2, 'triangle');
-      stringTop.setAttribute('x2', '25');
-      stringBottom.setAttribute('x2', '25');
-
-      const bRect = bowWrap.getBoundingClientRect();
-      const hRect = heartTarget.getBoundingClientRect();
-      const targetX = hRect.left + hRect.width / 2;
-      const targetY = hRect.top + hRect.height / 2;
-      const startArrowX = bRect.left + bRect.width / 2;
-      const startArrowY = bRect.top + bRect.height / 2;
-
-      const arrow = document.createElement('div');
-      arrow.style.cssText = `
-        position: fixed;
-        left: ${startArrowX}px;
-        top: ${startArrowY}px;
-        width: 65px;
-        height: 3px;
-        background: #5a3d31;
-        transform-origin: left center;
-        transform: rotate(${arrowAngle}deg);
-        z-index: 100;
-        transition: all 0.38s cubic-bezier(0.2, 0.8, 0.4, 1);
-        pointer-events: none;
-      `;
-      document.body.appendChild(arrow);
-      arrowGroup.style.display = 'none';
-
-      requestAnimationFrame(() => {
-        arrow.style.left = `${targetX}px`;
-        arrow.style.top = `${targetY}px`;
-      });
-
-      setTimeout(() => {
-        arrow.remove();
-        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 0.7, 'sine'), i * 90));
-        
-        confetti({
-          particleCount: 45,
-          spread: 80,
-          origin: { x: targetX / window.innerWidth, y: targetY / window.innerHeight },
-          colors: ['#ff2a6d', '#ff7096', '#fbb1bd', '#ffd166']
-        });
-
-        heartTarget.style.transition = 'all 0.5s ease-out';
-        heartTarget.style.transform = 'translate(-50%, -50%) scale(1.35)';
-        heartTarget.style.opacity = '0';
-
-        setTimeout(() => switchScene(2), 650);
-      }, 380);
-    }
-
-    function switchScene(sceneNum) {
-      document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-      const activeScene = document.getElementById(`scene${sceneNum}`);
-      activeScene.classList.add('active');
-
-      if (sceneNum === 2) {
-        setTimeout(() => switchScene(3), 3200);
-      } else if (sceneNum === 3) {
-        startTreeCanvas();
+        audioElement.pause();
+        audioIcon.textContent = '▶️';
+        audioText.textContent = 'Play Song';
       }
     }
 
-    /* =========================================
-       SCENE 3: PROGRESSIVE BOTTOM-UP BALLOONS
-       ========================================= */
-    function startTreeCanvas() {
-      const container = document.getElementById('treeContainer');
-      const canvas = document.getElementById('treeCanvas');
-      const ctx = canvas.getContext('2d');
+    audioElement.addEventListener('ended', () => {
+      audioIcon.textContent = '▶️';
+      audioText.textContent = 'Play Song';
+    });
 
-      function resize() {
-        const rect = container.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+    }
+
+    // Step 1: Candle
+    const blowBtn = document.getElementById('blow-btn');
+    const flame = document.getElementById('candle-flame');
+    let candleBlown = false;
+
+    blowBtn.addEventListener('click', () => {
+      if (!candleBlown) {
+        candleBlown = true;
+        flame.classList.add('blown-out');
+        document.getElementById('blow-icon').textContent = '✨';
+        document.getElementById('blow-label').textContent = 'NEXT';
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      } else {
+        showScreen('screen-accept');
       }
-      resize();
-      window.addEventListener('resize', resize);
+    });
 
-      const cx = canvas.width * 0.5;
-      const cy = canvas.height * 0.42;
-      const baseY = canvas.height * 0.90;
+    // Step 2: Accept prompt
+    const acceptYes = document.getElementById('accept-yes');
+    const acceptNo = document.getElementById('accept-no');
+    const retryBtn = document.getElementById('retry-btn');
+    const heading = document.getElementById('accept-heading');
+    const mouth = document.getElementById('creature-mouth');
 
-      const palette = [
-        '#f87593', '#fa93a7', '#ffb5c5', '#fdcc7a', 
-        '#f65777', '#fcd58b', '#eb4d70', '#ffe3a8'
-      ];
+    acceptYes.addEventListener('click', () => {
+      confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 } });
+      showScreen('screen-gifts');
+    });
 
-      const balloonCount = 450;
-      let balloons = [];
+    acceptNo.addEventListener('click', () => {
+      heading.textContent = 'WHY DID YOU CLICK NO!';
+      mouth.setAttribute('d', 'M 72 92 Q 80 82 88 92');
+      document.getElementById('choice-buttons').style.display = 'none';
+      retryBtn.style.display = 'inline-block';
+    });
 
-      for (let i = 0; i < balloonCount; i++) {
-        const t = Math.PI * 2 * Math.random();
-        // Exact Heart Profile Math
-        const hx = 16 * Math.pow(Math.sin(t), 3);
-        const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-        
-        const density = Math.pow(Math.random(), 0.72);
-        const scale = Math.min(canvas.width, canvas.height) * 0.019;
+    retryBtn.addEventListener('click', () => {
+      heading.textContent = 'PLEASE ACCEPT THE GIFT';
+      mouth.setAttribute('d', 'M 76 86 Q 80 88 84 86');
+      document.getElementById('choice-buttons').style.display = 'flex';
+      retryBtn.style.display = 'none';
+    });
 
-        const targetX = cx + hx * scale * density + (Math.random() - 0.5) * 10;
-        const targetY = cy + hy * scale * density + (Math.random() - 0.5) * 10;
-
-        balloons.push({
-          x: targetX,
-          y: targetY,
-          targetRadius: Math.random() * 6.5 + 5.5,
-          currentRadius: 0,
-          currentYOffset: 30, // Float upward entrance distance
-          color: palette[Math.floor(Math.random() * palette.length)],
-          growthRate: Math.random() * 0.45 + 0.35,
-          progress: 0
-        });
+    // Step 3: Gifts Subview Handlers
+    function openGift(type) {
+      if (type === 'letter') {
+        document.getElementById('envelope-elem').classList.remove('open');
+        showScreen('view-letter');
       }
-
-      // CRUCIAL: Sort balloons by vertical coordinate (descending)
-      // This guarantees balloons bloom strictly from below (highest Y) to above (lowest Y)
-      balloons.sort((a, b) => b.y - a.y);
-
-      let activeBalloonIndex = 0;
-
-      function drawTrunk() {
-        ctx.save();
-        ctx.strokeStyle = '#432924';
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        // Main Trunk
-        ctx.lineWidth = 14;
-        ctx.beginPath();
-        ctx.moveTo(cx, baseY);
-        ctx.quadraticCurveTo(cx + 8, baseY - 120, cx, cy + 100);
-        ctx.stroke();
-
-        // Main Left Fork
-        ctx.lineWidth = 7.5;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy + 100);
-        ctx.quadraticCurveTo(cx - 50, cy + 50, cx - 80, cy - 10);
-        ctx.stroke();
-
-        // Main Right Fork
-        ctx.lineWidth = 7.5;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy + 100);
-        ctx.quadraticCurveTo(cx + 50, cy + 50, cx + 80, cy - 10);
-        ctx.stroke();
-
-        // Branch accents
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(cx - 30, cy + 65);
-        ctx.quadraticCurveTo(cx - 15, cy + 10, cx - 35, cy - 50);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(cx + 30, cy + 65);
-        ctx.quadraticCurveTo(cx + 15, cy + 10, cx + 35, cy - 50);
-        ctx.stroke();
-
-        ctx.restore();
+      if (type === 'flowers') showScreen('view-flowers');
+      if (type === 'music') {
+        showScreen('view-music');
+        audioElement.play().then(() => {
+          audioIcon.textContent = '⏸️';
+          audioText.textContent = 'Pause';
+        }).catch(err => console.log('Audio autoplay blocked, click button to play'));
       }
+    }
 
-      // Ambient floating particles
-      const petals = Array.from({ length: 28 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 4 + 2.5,
-        sy: Math.random() * 0.8 + 0.4,
-        sx: Math.random() * 0.5 - 0.25,
-        color: palette[Math.floor(Math.random() * palette.length)]
-      }));
-
-      function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        drawTrunk();
-
-        // Render balloons ascending in sequence
-        for (let i = 0; i < balloons.length; i++) {
-          const b = balloons[i];
-          
-          if (i < activeBalloonIndex) {
-            if (b.progress < 1) {
-              b.progress = Math.min(1, b.progress + 0.05);
-              b.currentRadius = b.targetRadius * b.progress;
-              b.currentYOffset = (1 - b.progress) * 25; // Floats up into position
-            }
-          }
-
-          if (b.currentRadius > 0.1) {
-            const drawY = b.y + b.currentYOffset;
-            
-            // Balloon body
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(b.x, drawY, b.currentRadius, 0, Math.PI * 2);
-            ctx.fillStyle = b.color;
-            ctx.shadowColor = 'rgba(235, 77, 112, 0.2)';
-            ctx.shadowBlur = 4;
-            ctx.fill();
-
-            // Balloon specular shine/reflection
-            ctx.beginPath();
-            ctx.arc(b.x - b.currentRadius * 0.3, drawY - b.currentRadius * 0.3, b.currentRadius * 0.25, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-            ctx.fill();
-            ctx.restore();
-          }
-        }
-
-        // Speed of upward progressive generation
-        if (activeBalloonIndex < balloons.length) {
-          activeBalloonIndex += 4;
-        }
-
-        // Ambient particles
-        petals.forEach(p => {
-          p.y += p.sy;
-          p.x += Math.sin(p.y * 0.01) * 0.5 + p.sx;
-          if (p.y > canvas.height) {
-            p.y = -10;
-            p.x = Math.random() * canvas.width;
-          }
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.fill();
-        });
-
-        requestAnimationFrame(render);
-      }
-
-      render();
+    function backToGifts() {
+      audioElement.pause();
+      audioIcon.textContent = '▶️';
+      audioText.textContent = 'Play Song';
+      showScreen('screen-gifts');
     }
   </script>
 </body>
